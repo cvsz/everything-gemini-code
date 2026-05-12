@@ -9,16 +9,18 @@
  * in Phase 2.
  *
  * Designed to run in `.github/workflows/upstream-drift.yml`:
- *   - Uses `gh api` for upstream reads (public repo, no PAT needed).
- *   - Exits 0 on success and on tolerated upstream errors (rename,
- *     archive, deletion) so weekly cron does not produce red runs that
- *     nobody triages.
- *   - Exits non-zero only on programmer errors (malformed state file).
+ *   - Uses `gh api` via execFileSync (argv array — no shell parsing).
+ *   - Exits 0 on success and on tolerated upstream errors (the repo
+ *     itself was renamed/archived/deleted) so weekly cron does not
+ *     produce red runs nobody triages.
+ *   - Exits non-zero on programmer/config errors: a malformed state
+ *     file, or a baseline SHA that doesn't exist in an otherwise
+ *     reachable upstream repo (almost always a typo).
  */
 
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 
 const lib = require('../lib/upstream-drift');
 
@@ -44,16 +46,22 @@ function readState() {
 }
 
 /**
- * Invoke `gh api` and return the parsed JSON response, or null when the
- * upstream is unreachable (rename/archive/deletion). Other errors throw.
+ * Invoke `gh api` for the given endpoint and return the parsed JSON.
+ * Uses execFileSync with an argv array so the endpoint never reaches
+ * a shell — defense-in-depth against future inputs that might bypass
+ * the JSON-schema validation upstream.
+ *
+ * 404s are surfaced as a typed error (`err.is404 === true`) so callers
+ * can distinguish tolerable cases (upstream repo gone) from hard
+ * failures (invalid baseline SHA against a repo that does exist).
  *
  * @param {string} endpoint - path like "repos/owner/repo/compare/A...B"
- * @returns {object|null}
+ * @returns {object}
  */
 function ghApi(endpoint) {
   let stdout;
   try {
-    stdout = execSync(`gh api ${endpoint}`, {
+    stdout = execFileSync('gh', ['api', endpoint], {
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
       // The compare endpoint can return well over 1 MB of JSON when
@@ -63,16 +71,39 @@ function ghApi(endpoint) {
     });
   } catch (err) {
     const stderr = (err.stderr || '').toString();
-    if (stderr.includes('HTTP 404') || stderr.includes('Not Found')) {
-      warn(`Upstream unreachable for endpoint "${endpoint}". Treating as tolerated failure.`);
-      return null;
-    }
-    throw new Error(`gh api failed for "${endpoint}": ${stderr || err.message}`, { cause: err });
+    const is404 = stderr.includes('HTTP 404') || stderr.includes('Not Found');
+    const apiError = new Error(`gh api failed for "${endpoint}": ${stderr || err.message}`, { cause: err });
+    apiError.stderr = stderr;
+    apiError.is404 = is404;
+    throw apiError;
   }
   try {
     return JSON.parse(stdout);
   } catch (err) {
     throw new Error(`gh api returned non-JSON for "${endpoint}": ${err.message}`, { cause: err });
+  }
+}
+
+/**
+ * Pre-flight: check whether the upstream repo itself is reachable. A
+ * 404 here genuinely means "rename / archive / deletion" — a tolerable
+ * config drift the workflow should warn about, not fail on. A 404 on
+ * the *compare* endpoint after this check passes is a hard error
+ * (almost certainly a malformed `lastSyncedSha`).
+ *
+ * @param {string} repo - "owner/repo"
+ * @returns {boolean} true if reachable; false if the repo returns 404
+ */
+function isUpstreamReachable(repo) {
+  try {
+    ghApi(`repos/${repo}`);
+    return true;
+  } catch (err) {
+    if (err.is404) {
+      warn(`Upstream repo "${repo}" returned 404. Treating as tolerated upstream-unreachable (rename, archive, or deletion).`);
+      return false;
+    }
+    throw err;
   }
 }
 
@@ -117,13 +148,33 @@ function main() {
   }
 
   log(`Upstream: ${state.upstream}`);
-  const endpoint = `repos/${state.upstream}/compare/${state.lastSyncedSha}...HEAD`;
-  const compare = ghApi(endpoint);
 
-  if (compare === null) {
-    // Tolerated: rename/archive/deletion. Phase 2 will optionally
-    // post a comment on the existing tracking issue if there is one.
+  // Pre-flight: if the repo itself is 404, treat it as tolerable
+  // (rename/archive/deletion) and exit 0. Phase 2 will optionally post
+  // a comment on the existing tracking issue in this branch.
+  if (!isUpstreamReachable(state.upstream)) {
     process.exit(0);
+  }
+
+  // Repo exists. A 404 on the compare endpoint now means the recorded
+  // baseline SHA is not reachable in the upstream repo — almost always
+  // a typo in upstream/.upstream-sync.json. Fail loudly so the
+  // operator notices.
+  const endpoint = `repos/${state.upstream}/compare/${state.lastSyncedSha}...HEAD`;
+  let compare;
+  try {
+    compare = ghApi(endpoint);
+  } catch (err) {
+    if (err.is404) {
+      console.error(
+        `Baseline SHA "${state.lastSyncedSha}" is not reachable in ${state.upstream}. ` +
+          `Check upstream/.upstream-sync.json — the SHA may be malformed or refer to a commit ` +
+          `that was force-removed from the upstream history.`,
+      );
+      process.exit(1);
+    }
+    console.error(err.message);
+    process.exit(1);
   }
 
   summarize(state, compare);
@@ -133,4 +184,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { readState, ghApi, summarize };
+module.exports = { readState, ghApi, isUpstreamReachable, summarize };
