@@ -168,6 +168,72 @@ function compareUrl(upstreamRepo, baseSha, headSha) {
   return `https://github.com/${upstreamRepo}/compare/${baseSha}...${headSha}`;
 }
 
+/**
+ * Translate the compare-API `commits` array into the simplified shape
+ * `formatIssueBody` expects: `{ sha, author, message }`.
+ *
+ * Author preference: `author.login` (GitHub username) → `commit.author.name`
+ * (raw git author name) → empty string.
+ *
+ * @param {object} compareResponse - the parsed `gh api .../compare/...` body
+ * @returns {Array<{ sha: string, author: string, message: string }>}
+ */
+function extractCommitsForBody(compareResponse) {
+  if (!compareResponse || !Array.isArray(compareResponse.commits)) return [];
+  return compareResponse.commits.map((c) => ({
+    sha: typeof c.sha === 'string' ? c.sha : '',
+    author: (c.author && typeof c.author.login === 'string' && c.author.login)
+      || (c.commit && c.commit.author && typeof c.commit.author.name === 'string' && c.commit.author.name)
+      || '',
+    message: (c.commit && typeof c.commit.message === 'string') ? c.commit.message : '',
+  }));
+}
+
+/**
+ * Given the result of `gh issue list --label <upstream-sync> --state open
+ * --json number,title,createdAt`, pick the issue we should treat as the
+ * rolling tracker.
+ *
+ * - 0 open → null (caller will create)
+ * - 1 open → that one
+ * - 2+ open → defensive: pick the most recently created so we update a
+ *   live discussion rather than an abandoned one. This branch should
+ *   not occur in normal operation but the script handles it instead of
+ *   crashing.
+ *
+ * @param {Array<{ number: number, title: string, createdAt: string }>} issues
+ * @returns {{ number: number, title: string, createdAt: string }|null}
+ */
+function pickActiveIssue(issues) {
+  if (!Array.isArray(issues) || issues.length === 0) return null;
+  if (issues.length === 1) return issues[0];
+  return issues
+    .slice()
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+}
+
+/**
+ * Decide what to do this run based on the current delta and whether a
+ * rolling tracking issue is already open.
+ *
+ *   delta=0, no issue   → 'noop'   (already in sync, nothing to manage)
+ *   delta=0, open issue → 'close'  (sync happened, close the tracker)
+ *   delta>0, no issue   → 'create' (new drift, open the tracker)
+ *   delta>0, open issue → 'update' (drift continues, update the tracker)
+ *
+ * @param {{ deltaCount: number, openIssue: object|null }} args
+ * @returns {'noop'|'close'|'create'|'update'}
+ */
+function decideAction({ deltaCount, openIssue }) {
+  if (typeof deltaCount !== 'number' || deltaCount < 0 || !Number.isInteger(deltaCount)) {
+    throw new Error(`decideAction: deltaCount must be a non-negative integer (got: ${deltaCount})`);
+  }
+  if (deltaCount === 0) {
+    return openIssue ? 'close' : 'noop';
+  }
+  return openIssue ? 'update' : 'create';
+}
+
 module.exports = {
   COMMIT_BODY_LIMIT,
   parseUpstreamState,
@@ -175,4 +241,7 @@ module.exports = {
   formatIssueTitle,
   formatIssueBody,
   compareUrl,
+  extractCommitsForBody,
+  pickActiveIssue,
+  decideAction,
 };

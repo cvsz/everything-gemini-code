@@ -52,6 +52,14 @@
   color: d93f0b
   description: Breaks command names, tool lists, or hook contracts
 
+# --- Automation ---------------------------------------------------------
+- name: 🔄 Upstream Sync
+  color: 0E8A16
+  description: Tracking upstream ECC drift — maintained by .github/workflows/upstream-drift.yml
+- name: ⚠ Upstream Sync Failure
+  color: B60205
+  description: The upstream-drift workflow itself is failing — investigate the run logs
+
 # --- Triage / flow ------------------------------------------------------
 - name: 🔍 Triage
   color: ededed

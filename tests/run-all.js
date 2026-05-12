@@ -22,6 +22,7 @@ const testFiles = [
   'hooks/hooks.test.js',
   'hooks/block-no-verify.test.js',
   'ci/validate-workflow-security.test.js',
+  'ci/validate-upstream-sync.test.js',
   'lint/validators.test.js'
 ];
 

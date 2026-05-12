@@ -204,6 +204,86 @@ test('formatIssueBody rejects malformed upstreamRepo', () => {
   );
 });
 
+// extractCommitsForBody
+
+test('extractCommitsForBody flattens the compare API shape', () => {
+  const compare = {
+    commits: [
+      {
+        sha: 'aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111',
+        author: { login: 'octocat' },
+        commit: { author: { name: 'Real Name' }, message: 'fix: thing\n\nbody' },
+      },
+      {
+        sha: 'bbbb2222bbbb2222bbbb2222bbbb2222bbbb2222',
+        author: null,
+        commit: { author: { name: 'Raw Name' }, message: 'feat: thing 2' },
+      },
+      {
+        sha: 'cccc3333cccc3333cccc3333cccc3333cccc3333',
+        author: null,
+        commit: { message: 'orphaned author' },
+      },
+    ],
+  };
+  const out = lib.extractCommitsForBody(compare);
+  assert.strictEqual(out.length, 3);
+  assert.strictEqual(out[0].author, 'octocat');
+  assert.strictEqual(out[1].author, 'Raw Name');
+  assert.strictEqual(out[2].author, '');
+  assert.strictEqual(out[0].message, 'fix: thing\n\nbody');
+});
+
+test('extractCommitsForBody returns [] for missing or malformed input', () => {
+  assert.deepStrictEqual(lib.extractCommitsForBody(null), []);
+  assert.deepStrictEqual(lib.extractCommitsForBody({}), []);
+  assert.deepStrictEqual(lib.extractCommitsForBody({ commits: 'not array' }), []);
+});
+
+// pickActiveIssue
+
+test('pickActiveIssue returns null when no issues are open', () => {
+  assert.strictEqual(lib.pickActiveIssue([]), null);
+  assert.strictEqual(lib.pickActiveIssue(null), null);
+  assert.strictEqual(lib.pickActiveIssue(undefined), null);
+});
+
+test('pickActiveIssue returns the single open issue', () => {
+  const only = { number: 42, title: 't', createdAt: '2026-05-01T00:00:00Z' };
+  assert.strictEqual(lib.pickActiveIssue([only]), only);
+});
+
+test('pickActiveIssue picks the most recently created when multiple are open', () => {
+  const older = { number: 1, title: 'older', createdAt: '2026-04-01T00:00:00Z' };
+  const newer = { number: 2, title: 'newer', createdAt: '2026-05-01T00:00:00Z' };
+  assert.strictEqual(lib.pickActiveIssue([older, newer]).number, 2);
+  assert.strictEqual(lib.pickActiveIssue([newer, older]).number, 2);
+});
+
+// decideAction
+
+test('decideAction: delta=0 + no issue → noop', () => {
+  assert.strictEqual(lib.decideAction({ deltaCount: 0, openIssue: null }), 'noop');
+});
+
+test('decideAction: delta=0 + open issue → close', () => {
+  assert.strictEqual(lib.decideAction({ deltaCount: 0, openIssue: { number: 1 } }), 'close');
+});
+
+test('decideAction: delta>0 + no issue → create', () => {
+  assert.strictEqual(lib.decideAction({ deltaCount: 3, openIssue: null }), 'create');
+});
+
+test('decideAction: delta>0 + open issue → update', () => {
+  assert.strictEqual(lib.decideAction({ deltaCount: 3, openIssue: { number: 1 } }), 'update');
+});
+
+test('decideAction rejects non-integer or negative deltaCount', () => {
+  assert.throws(() => lib.decideAction({ deltaCount: -1, openIssue: null }), /non-negative integer/);
+  assert.throws(() => lib.decideAction({ deltaCount: 1.5, openIssue: null }), /non-negative integer/);
+  assert.throws(() => lib.decideAction({ deltaCount: '3', openIssue: null }), /non-negative integer/);
+});
+
 // compareUrl
 
 test('compareUrl builds the expected GitHub URL', () => {
