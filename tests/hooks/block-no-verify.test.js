@@ -191,6 +191,22 @@ if (test('still allows -mn (n is inside -m message, not a flag)', () => {
   assert.strictEqual(r.code, 0, `expected exit 0, got ${r.code}: ${r.stderr}`);
 })) passed++; else failed++;
 
+if (test('still allows -tn (n is the -t template path, not a flag)', () => {
+  const r = runHook({ tool_input: { command: 'git commit -tn -m "msg"' } });
+  assert.strictEqual(r.code, 0, `expected exit 0, got ${r.code}: ${r.stderr}`);
+})) passed++; else failed++;
+
+if (test('blocks case-variant core.hooksPath (lowercase)', () => {
+  const r = runHook({ tool_input: { command: 'git -c core.hookspath=/dev/null commit -m "msg"' } });
+  assert.strictEqual(r.code, 2, `expected exit 2, got ${r.code}`);
+  assert.ok(/core\.hooksPath/i.test(r.stderr), `stderr should mention core.hooksPath: ${r.stderr}`);
+})) passed++; else failed++;
+
+if (test('blocks case-variant core.hooksPath (uppercase)', () => {
+  const r = runHook({ tool_input: { command: 'git -c core.HOOKSPATH=/dev/null commit -m "msg"' } });
+  assert.strictEqual(r.code, 2, `expected exit 2, got ${r.code}`);
+})) passed++; else failed++;
+
 console.log('─'.repeat(50));
 console.log(`Passed: ${passed}  Failed: ${failed}`);
 
