@@ -17,6 +17,25 @@ fi
 # Remove 'v' prefix if provided
 VERSION="${VERSION#v}"
 
+# Refuse to run on main. The release workflow expects the version
+# bump to land via a reviewable PR — committing directly to main
+# bypasses CI, code review, and the merge audit trail. If you really
+# need to release from main (genuine emergency), comment out this
+# guard temporarily; do not add an env-var escape hatch because that
+# normalises the wrong path.
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+if [ "$BRANCH" = "main" ]; then
+    echo "Error: refusing to run release from 'main' branch." >&2
+    echo "" >&2
+    echo "Version bumps must go through a PR:" >&2
+    echo "  1. git checkout -b chore/release-v$VERSION" >&2
+    echo "  2. ./scripts/release.sh $VERSION   # re-run on the release branch" >&2
+    echo "  3. git push -u origin chore/release-v$VERSION" >&2
+    echo "  4. gh pr create --title \"chore: release v$VERSION\" --body \"Bump version to $VERSION\"" >&2
+    echo "  5. Merge once CI is green, then push the tag." >&2
+    exit 1
+fi
+
 echo "Preparing release v$VERSION..."
 
 # 1. Update package.json
@@ -42,17 +61,9 @@ git commit -m "chore: bump version to $VERSION"
 echo "Creating tag v$VERSION..."
 git tag "v$VERSION"
 
-BRANCH=$(git rev-parse --abbrev-ref HEAD)
-
 echo "Done!"
 echo "Next steps:"
-echo "1. git push origin $BRANCH"
-echo "2. git push origin v$VERSION"
-if [ "$BRANCH" != "main" ]; then
-    echo "3. Create a PR to merge '$BRANCH' into main"
-    echo "   gh pr create --title 'chore: release v$VERSION' --body 'Bump version to $VERSION'"
-    echo "4. After merge, push the tag: git push origin v$VERSION"
-    echo "5. Check GitHub Actions for the Release process."
-else
-    echo "3. Check GitHub Actions for the Release process."
-fi
+echo "1. git push -u origin $BRANCH"
+echo "2. gh pr create --title \"chore: release v$VERSION\" --body \"Bump version to $VERSION\""
+echo "3. After merge, push the tag: git push origin v$VERSION"
+echo "4. Check GitHub Actions for the Release process."
