@@ -102,7 +102,7 @@ Command instructions...
 
 ## Upstream contributions (ECC backports)
 
-EGC is an ecosystem port of [Everything Claude Code](https://github.com/affaan-m/everything-claude-code). When a contribution to EGC is harness-agnostic, it may also belong upstream in ECC. The full sync policy is in [`docs/UPSTREAM.md`](docs/UPSTREAM.md); the short version follows.
+EGC is an ecosystem port of [Everything Claude Code](https://github.com/affaan-m/everything-claude-code). When a contribution to EGC is harness-agnostic, it may also belong upstream in ECC. The full sync policy is in [`upstream/README.md`](upstream/README.md); the short version follows.
 
 ### When a change belongs upstream too
 
@@ -120,7 +120,7 @@ The maintainer of EGC is not affiliated with the maintainer of ECC; backports ar
 
 ### Recording an upstream sync
 
-When pulling new content from ECC into EGC, follow the procedure documented in [`docs/UPSTREAM.md`](docs/UPSTREAM.md) — update both the prose baseline section and `docs/.upstream-sync.json`, then commit with a `docs: sync upstream baseline to <short-sha>` message.
+When pulling new content from ECC into EGC, follow the procedure documented in [`upstream/README.md`](upstream/README.md) — update both the prose baseline section and `upstream/.upstream-sync.json`, then commit with a `docs: sync upstream baseline to <short-sha>` message.
 
 ---
 

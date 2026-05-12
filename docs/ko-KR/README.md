@@ -1,6 +1,8 @@
 **언어:** [English](../../README.md) | **한국어** | [简体中文](../zh-CN/README.md)
 
 > **출처:** 이 프로젝트는 [@affaan-m](https://github.com/affaan-m)의 [Everything Claude Code](https://github.com/affaan-m/everything-claude-code)를 Gemini CLI 생태계로 마이그레이션하여 만들었습니다. 원본 프로젝트에 감사드립니다.
+>
+> EGC는 ECC의 **생태계 포트(ecosystem port)** 이며 ECC의 공식 릴리스가 아닙니다. ECC와의 API/동작 호환성을 주장하지 않으며, 하네스 고유 동작은 Gemini CLI 내부에서 직접 검증합니다. 동기화 정책, 업스트림 베이스라인, 포팅 시 무엇이 변경/복사되었는지의 카테고리별 정리는 [`upstream/ko-KR/README.md`](../../upstream/ko-KR/README.md) 를 참조하세요.
 
 # Everything Gemini Code
 

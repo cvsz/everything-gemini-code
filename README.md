@@ -2,7 +2,7 @@
 
 > **Attribution:** This project was built by migrating [Everything Claude Code](https://github.com/affaan-m/everything-claude-code) by [@affaan-m](https://github.com/affaan-m) to the Gemini CLI ecosystem. Huge thanks for the original work.
 >
-> EGC is an **ecosystem port** of ECC, not an official ECC release, and does not claim API or behavioral compatibility with ECC. Harness-specific behavior is verified inside Gemini CLI itself. See [`docs/UPSTREAM.md`](docs/UPSTREAM.md) for the sync policy, the recorded upstream baseline, and a category-level summary of what was changed versus copied during the port.
+> EGC is an **ecosystem port** of ECC, not an official ECC release, and does not claim API or behavioral compatibility with ECC. Harness-specific behavior is verified inside Gemini CLI itself. See [`upstream/README.md`](upstream/README.md) for the sync policy, the recorded upstream baseline, and a category-level summary of what was changed versus copied during the port.
 
 # Everything Gemini Code
 
