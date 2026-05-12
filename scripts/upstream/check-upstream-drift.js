@@ -1,21 +1,32 @@
 #!/usr/bin/env node
 
 /**
- * Upstream drift detector — Phase 1 (log-only).
+ * Upstream drift detector — Phase 2 (rolling tracking issue).
  *
  * Reads `upstream/.upstream-sync.json`, asks the GitHub API how many
- * commits the upstream repo is ahead of the recorded baseline, and logs
- * the result. Does NOT create or update GitHub issues yet — that lands
- * in Phase 2.
+ * commits the upstream repo is ahead of the recorded baseline, and
+ * maintains a single rolling tracking issue labelled `🔄 Upstream Sync`
+ * that reflects the current drift state.
+ *
+ * Action matrix:
+ *   delta=0, no issue   → noop
+ *   delta=0, open issue → close (sync happened upstream-side)
+ *   delta>0, no issue   → create
+ *   delta>0, open issue → update title/body to reflect current count
  *
  * Designed to run in `.github/workflows/upstream-drift.yml`:
- *   - Uses `gh api` via execFileSync (argv array — no shell parsing).
+ *   - Uses `gh api` and `gh issue ...` via execFileSync (argv array —
+ *     no shell parsing).
  *   - Exits 0 on success and on tolerated upstream errors (the repo
  *     itself was renamed/archived/deleted) so weekly cron does not
  *     produce red runs nobody triages.
  *   - Exits non-zero on programmer/config errors: a malformed state
  *     file, or a baseline SHA that doesn't exist in an otherwise
  *     reachable upstream repo (almost always a typo).
+ *
+ * The workflow also runs an `if: failure()` step that maintains a
+ * separate `⚠ Upstream Sync Failure` issue so the action's own health
+ * is visible the same way drift is.
  */
 
 const fs = require('fs');
@@ -26,6 +37,7 @@ const lib = require('../lib/upstream-drift');
 
 const REPO_ROOT = path.join(__dirname, '..', '..');
 const STATE_PATH = path.join(REPO_ROOT, 'upstream', '.upstream-sync.json');
+const UPSTREAM_SYNC_LABEL = '🔄 Upstream Sync';
 
 function log(message) {
   console.log(`[upstream-drift] ${message}`);
@@ -47,13 +59,7 @@ function readState() {
 
 /**
  * Invoke `gh api` for the given endpoint and return the parsed JSON.
- * Uses execFileSync with an argv array so the endpoint never reaches
- * a shell — defense-in-depth against future inputs that might bypass
- * the JSON-schema validation upstream.
- *
- * 404s are surfaced as a typed error (`err.is404 === true`) so callers
- * can distinguish tolerable cases (upstream repo gone) from hard
- * failures (invalid baseline SHA against a repo that does exist).
+ * 404s are surfaced as a typed error (`err.is404 === true`).
  *
  * @param {string} endpoint - path like "repos/owner/repo/compare/A...B"
  * @returns {object}
@@ -64,9 +70,8 @@ function ghApi(endpoint) {
     stdout = execFileSync('gh', ['api', endpoint], {
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
-      // The compare endpoint can return well over 1 MB of JSON when
-      // the delta includes hundreds of commits. Default maxBuffer is
-      // 1 MB and the process is killed with SIGTERM on overflow.
+      // Compare responses can exceed Node's default 1 MB buffer when
+      // the delta is large; SIGTERMs the child on overflow.
       maxBuffer: 50 * 1024 * 1024,
     });
   } catch (err) {
@@ -84,16 +89,6 @@ function ghApi(endpoint) {
   }
 }
 
-/**
- * Pre-flight: check whether the upstream repo itself is reachable. A
- * 404 here genuinely means "rename / archive / deletion" — a tolerable
- * config drift the workflow should warn about, not fail on. A 404 on
- * the *compare* endpoint after this check passes is a hard error
- * (almost certainly a malformed `lastSyncedSha`).
- *
- * @param {string} repo - "owner/repo"
- * @returns {boolean} true if reachable; false if the repo returns 404
- */
 function isUpstreamReachable(repo) {
   try {
     ghApi(`repos/${repo}`);
@@ -107,35 +102,85 @@ function isUpstreamReachable(repo) {
   }
 }
 
+/**
+ * Resolve the upstream HEAD SHA from a compare response. The compare
+ * API returns the *new* commits in `commits[]`; the last one is HEAD.
+ * If there is no delta, fall back to the recorded baseline.
+ *
+ * @param {object} compare
+ * @param {string} fallbackSha
+ * @returns {string}
+ */
+function getHeadSha(compare, fallbackSha) {
+  if (compare && Array.isArray(compare.commits) && compare.commits.length > 0) {
+    return compare.commits[compare.commits.length - 1].sha;
+  }
+  return fallbackSha;
+}
+
 function summarize(state, compare) {
   const status = compare.status;
   const ahead = compare.ahead_by;
   const behind = compare.behind_by;
-  const headSha = compare.commits && compare.commits.length > 0
-    ? compare.commits[compare.commits.length - 1].sha
-    : state.lastSyncedSha;
+  const headSha = getHeadSha(compare, state.lastSyncedSha);
 
   log(`Status: ${status} (ahead_by=${ahead}, behind_by=${behind})`);
   log(`Baseline: ${lib.shortSha(state.lastSyncedSha)} (recorded ${state.lastSyncedAt})`);
   log(`Upstream HEAD: ${lib.shortSha(headSha)}`);
   log(`Compare: ${lib.compareUrl(state.upstream, state.lastSyncedSha, headSha)}`);
+}
 
-  if (status === 'identical' || ahead === 0) {
-    log('No drift — baseline matches upstream HEAD.');
-    return;
-  }
+function listUpstreamSyncIssues() {
+  const stdout = execFileSync(
+    'gh',
+    ['issue', 'list', '--label', UPSTREAM_SYNC_LABEL, '--state', 'open', '--json', 'number,title,createdAt'],
+    { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] },
+  );
+  return JSON.parse(stdout);
+}
 
-  if (status === 'ahead' || status === 'diverged') {
-    log(`Drift detected: upstream is ${ahead} commit(s) ahead.`);
-    return;
-  }
+function createTrackingIssue(title, body) {
+  log(`Creating tracking issue: "${title}"`);
+  execFileSync(
+    'gh',
+    ['issue', 'create', '--label', UPSTREAM_SYNC_LABEL, '--title', title, '--body', body],
+    { stdio: 'inherit' },
+  );
+}
 
-  if (status === 'behind') {
-    log('Baseline is ahead of upstream HEAD — likely a manual cherry-pick or upstream reset.');
-    return;
-  }
+function updateTrackingIssue(number, title, body) {
+  log(`Updating tracking issue #${number}: "${title}"`);
+  execFileSync(
+    'gh',
+    ['issue', 'edit', String(number), '--title', title, '--body', body],
+    { stdio: 'inherit' },
+  );
+}
 
-  log(`Unknown compare status "${status}" — surfacing as drift for review.`);
+function closeTrackingIssue(number, upstreamRepo) {
+  const comment = `Closed automatically: \`upstream/.upstream-sync.json\` is now in sync with \`${upstreamRepo}\` HEAD.`;
+  log(`Closing tracking issue #${number}`);
+  execFileSync(
+    'gh',
+    ['issue', 'close', String(number), '--comment', comment],
+    { stdio: 'inherit' },
+  );
+}
+
+function buildIssueContent(state, compare) {
+  const headSha = getHeadSha(compare, state.lastSyncedSha);
+  const commits = lib.extractCommitsForBody(compare);
+  const title = lib.formatIssueTitle({
+    count: compare.ahead_by,
+    lastSyncedShaShort: lib.shortSha(state.lastSyncedSha),
+  });
+  const body = lib.formatIssueBody({
+    commits,
+    lastSyncedSha: state.lastSyncedSha,
+    upstreamHeadSha: headSha,
+    upstreamRepo: state.upstream,
+  });
+  return { title, body };
 }
 
 function main() {
@@ -149,17 +194,10 @@ function main() {
 
   log(`Upstream: ${state.upstream}`);
 
-  // Pre-flight: if the repo itself is 404, treat it as tolerable
-  // (rename/archive/deletion) and exit 0. Phase 2 will optionally post
-  // a comment on the existing tracking issue in this branch.
   if (!isUpstreamReachable(state.upstream)) {
     process.exit(0);
   }
 
-  // Repo exists. A 404 on the compare endpoint now means the recorded
-  // baseline SHA is not reachable in the upstream repo — almost always
-  // a typo in upstream/.upstream-sync.json. Fail loudly so the
-  // operator notices.
   const endpoint = `repos/${state.upstream}/compare/${state.lastSyncedSha}...HEAD`;
   let compare;
   try {
@@ -178,10 +216,51 @@ function main() {
   }
 
   summarize(state, compare);
+
+  const openIssues = listUpstreamSyncIssues();
+  const activeIssue = lib.pickActiveIssue(openIssues);
+  if (openIssues.length > 1) {
+    warn(`Found ${openIssues.length} open "${UPSTREAM_SYNC_LABEL}" issues — operating on #${activeIssue.number} (most recent).`);
+  }
+
+  const action = lib.decideAction({ deltaCount: compare.ahead_by, openIssue: activeIssue });
+  log(`Action: ${action}`);
+
+  switch (action) {
+    case 'noop':
+      log('In sync, no tracking issue to manage.');
+      break;
+    case 'close':
+      closeTrackingIssue(activeIssue.number, state.upstream);
+      break;
+    case 'create': {
+      const { title, body } = buildIssueContent(state, compare);
+      createTrackingIssue(title, body);
+      break;
+    }
+    case 'update': {
+      const { title, body } = buildIssueContent(state, compare);
+      updateTrackingIssue(activeIssue.number, title, body);
+      break;
+    }
+    default:
+      throw new Error(`Unknown action: ${action}`);
+  }
 }
 
 if (require.main === module) {
   main();
 }
 
-module.exports = { readState, ghApi, isUpstreamReachable, summarize };
+module.exports = {
+  UPSTREAM_SYNC_LABEL,
+  readState,
+  ghApi,
+  isUpstreamReachable,
+  summarize,
+  buildIssueContent,
+  listUpstreamSyncIssues,
+  createTrackingIssue,
+  updateTrackingIssue,
+  closeTrackingIssue,
+};

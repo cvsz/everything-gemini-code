@@ -19,7 +19,7 @@ This document records how EGC tracks the upstream ECC repository and what was ch
 - **Last-synced date**: 2026-02-09
 - **Initial EGC commit**: [`ff331996a061c2bbd17ffaa23d4eed2dcdd6ad35`](https://github.com/Jamkris/everything-gemini-code/commit/ff331996a061c2bbd17ffaa23d4eed2dcdd6ad35) (2026-02-09)
 
-A machine-readable copy of this state lives at [`.upstream-sync.json`](./.upstream-sync.json). A follow-up CI validator will assert the two files agree on the SHA; until then the maintainer keeps them in sync by hand at sync time.
+A machine-readable copy of this state lives at [`.upstream-sync.json`](./.upstream-sync.json). A CI validator (`scripts/ci/validate-upstream-sync.js`) asserts that the two files agree on the SHA, so a mismatch blocks the PR automatically.
 
 ---
 
@@ -30,8 +30,8 @@ EGC syncs with ECC on a **best-effort basis**. There is no committed sync cadenc
 Instead, drift is made **mechanically visible**:
 
 - The last-synced commit SHA is recorded above and in `.upstream-sync.json`.
-- A scheduled GitHub Action (planned) compares the recorded SHA against `affaan-m/everything-claude-code` HEAD on a weekly cadence and maintains a single rolling tracking issue labelled `upstream-sync` when there is drift.
-- When a sync round happens, the maintainer advances the SHA, the tracker closes the issue, and the cycle repeats.
+- A scheduled GitHub Action (`.github/workflows/upstream-drift.yml`) compares the recorded SHA against `affaan-m/everything-claude-code` HEAD weekly (Monday 06:00 KST) and maintains a single rolling tracking issue labelled `🔄 Upstream Sync` when there is drift.
+- When a sync round happens, the maintainer advances the SHA, the tracker closes the issue automatically, and the cycle repeats.
 
 This way the *commitment* is to surface drift, not to fix it on a schedule.
 
@@ -130,6 +130,4 @@ When upstream is reviewed and the baseline advances:
 4. Run `npm run lint && npm test`.
 5. Commit with a `docs: sync upstream baseline to <short-sha>` message.
 
-**This procedure is open to community contributors** — anyone can propose a sync update via a PR, not just the maintainer. The validator (once landed) plus normal code review will check that the SHAs and the recorded date are consistent.
-
-A follow-up PR will add a CI validator that asserts the SHAs in this document and in `.upstream-sync.json` agree; once that lands, a mismatch will block the PR automatically.
+**This procedure is open to community contributors** — anyone can propose a sync update via a PR, not just the maintainer. The CI validator (`scripts/ci/validate-upstream-sync.js`) plus normal code review will check that the SHAs and the recorded date are consistent; a mismatch between this document and `.upstream-sync.json` blocks the PR automatically.

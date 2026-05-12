@@ -38,3 +38,6 @@ jobs:
 
       - name: Validate workflow security
         run: node scripts/ci/validate-workflow-security.js
+
+      - name: Validate upstream sync baseline
+        run: node scripts/ci/validate-upstream-sync.js
