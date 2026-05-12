@@ -179,6 +179,9 @@ function buildIssueContent(state, compare) {
     lastSyncedSha: state.lastSyncedSha,
     upstreamHeadSha: headSha,
     upstreamRepo: state.upstream,
+    // compare.ahead_by is the true delta even when commits[] is
+    // capped at 250 by the GitHub compare endpoint.
+    totalCount: compare.ahead_by,
   });
   return { title, body };
 }

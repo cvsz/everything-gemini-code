@@ -151,6 +151,7 @@ test('formatIssueBody includes baseline, head, compare URL', () => {
     lastSyncedSha: '9db98673d054f5ed0991ba9d67ff4c883c81a42f',
     upstreamHeadSha: 'bbbb2222bbbb2222bbbb2222bbbb2222bbbb2222',
     upstreamRepo: 'affaan-m/everything-claude-code',
+    totalCount: 1,
   });
   assert.ok(body.includes('9db9867'), 'should contain baseline short sha');
   assert.ok(body.includes('bbbb222'), 'should contain head short sha');
@@ -160,19 +161,22 @@ test('formatIssueBody includes baseline, head, compare URL', () => {
   assert.ok(!body.includes('body'), 'should not include commit message body, only first line');
 });
 
-test('formatIssueBody handles empty commit list', () => {
+test('formatIssueBody handles empty commit list (totalCount=0)', () => {
   const body = lib.formatIssueBody({
     commits: [],
     lastSyncedSha: '0'.repeat(40),
     upstreamHeadSha: '1'.repeat(40),
     upstreamRepo: 'a/b',
+    totalCount: 0,
   });
   assert.ok(body.includes('_No commits to show._'));
+  assert.ok(body.includes('**0**'));
 });
 
-test('formatIssueBody truncates beyond COMMIT_BODY_LIMIT', () => {
+test('formatIssueBody truncates display beyond COMMIT_BODY_LIMIT (totalCount === commits.length)', () => {
   const many = [];
-  for (let i = 0; i < lib.COMMIT_BODY_LIMIT + 25; i += 1) {
+  const N = lib.COMMIT_BODY_LIMIT + 25;
+  for (let i = 0; i < N; i += 1) {
     many.push({
       sha: i.toString(16).padStart(40, '0'),
       author: 'a',
@@ -184,23 +188,75 @@ test('formatIssueBody truncates beyond COMMIT_BODY_LIMIT', () => {
     lastSyncedSha: '0'.repeat(40),
     upstreamHeadSha: '1'.repeat(40),
     upstreamRepo: 'a/b',
+    totalCount: N,
   });
   assert.ok(body.includes('… and 25 more'));
-  assert.ok(body.includes(`(${lib.COMMIT_BODY_LIMIT + 25} total`));
-  assert.ok(!body.includes(`msg ${lib.COMMIT_BODY_LIMIT + 24}`), 'last commit should not be rendered');
+  assert.ok(body.includes(`showing first ${lib.COMMIT_BODY_LIMIT} of ${N}`));
+  assert.ok(!body.includes(`msg ${N - 1}`), 'last commit should not be rendered');
+});
+
+test('formatIssueBody uses totalCount when API caps commits (totalCount > commits.length)', () => {
+  // Real-world case: ahead_by=1521 but compare endpoint capped commits[] at 250.
+  // Intro and summary must report 1521, not 250.
+  const commits = [];
+  for (let i = 0; i < 250; i += 1) {
+    commits.push({
+      sha: i.toString(16).padStart(40, '0'),
+      author: 'a',
+      message: `msg ${i}`,
+    });
+  }
+  const body = lib.formatIssueBody({
+    commits,
+    lastSyncedSha: '0'.repeat(40),
+    upstreamHeadSha: '1'.repeat(40),
+    upstreamRepo: 'a/b',
+    totalCount: 1521,
+  });
+  assert.ok(body.includes('**1521** commit(s) ahead'), 'intro should use totalCount, not commits.length');
+  assert.ok(body.includes(`showing first ${lib.COMMIT_BODY_LIMIT} of 1521`), 'summary should reference totalCount');
+  assert.ok(body.includes(`… and ${1521 - lib.COMMIT_BODY_LIMIT} more`), 'truncation must reflect totalCount');
+  assert.ok(!body.includes('250'), 'API window size 250 should never appear in the body');
+});
+
+test('formatIssueBody omits the truncation line when total fits in display', () => {
+  const commits = [
+    { sha: 'a'.repeat(40), author: 'x', message: 'm1' },
+    { sha: 'b'.repeat(40), author: 'y', message: 'm2' },
+  ];
+  const body = lib.formatIssueBody({
+    commits,
+    lastSyncedSha: '0'.repeat(40),
+    upstreamHeadSha: '1'.repeat(40),
+    upstreamRepo: 'a/b',
+    totalCount: 2,
+  });
+  assert.ok(body.includes('Commits (2)'), 'summary should be the simple form when nothing is omitted');
+  assert.ok(!body.includes('more.'), 'no truncation note when omitted === 0');
 });
 
 test('formatIssueBody rejects non-array commits', () => {
   assert.throws(
-    () => lib.formatIssueBody({ commits: null, lastSyncedSha: '0', upstreamHeadSha: '1', upstreamRepo: 'a/b' }),
+    () => lib.formatIssueBody({ commits: null, lastSyncedSha: '0', upstreamHeadSha: '1', upstreamRepo: 'a/b', totalCount: 0 }),
     /must be an array/,
   );
 });
 
 test('formatIssueBody rejects malformed upstreamRepo', () => {
   assert.throws(
-    () => lib.formatIssueBody({ commits: [], lastSyncedSha: '0', upstreamHeadSha: '1', upstreamRepo: 'no-slash' }),
+    () => lib.formatIssueBody({ commits: [], lastSyncedSha: '0', upstreamHeadSha: '1', upstreamRepo: 'no-slash', totalCount: 0 }),
     /owner\/repo/,
+  );
+});
+
+test('formatIssueBody rejects non-integer or negative totalCount', () => {
+  assert.throws(
+    () => lib.formatIssueBody({ commits: [], lastSyncedSha: '0', upstreamHeadSha: '1', upstreamRepo: 'a/b', totalCount: -1 }),
+    /non-negative integer/,
+  );
+  assert.throws(
+    () => lib.formatIssueBody({ commits: [], lastSyncedSha: '0', upstreamHeadSha: '1', upstreamRepo: 'a/b', totalCount: 1.5 }),
+    /non-negative integer/,
   );
 });
 

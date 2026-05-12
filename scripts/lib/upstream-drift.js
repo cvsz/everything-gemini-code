@@ -97,48 +97,63 @@ function formatIssueTitle({ count, lastSyncedShaShort }) {
  * Body for the rolling tracking issue. Truncates the commit list at
  * COMMIT_BODY_LIMIT entries and links to the compare URL for the full diff.
  *
+ * `totalCount` is the true number of commits upstream is ahead by
+ * (i.e. `compare.ahead_by` from the GitHub API). `commits.length`
+ * can be smaller because the compare endpoint caps responses at 250
+ * commits regardless of the true delta. Using `commits.length` in
+ * the intro would silently understate the drift when the API caps
+ * (e.g. show "250 commits ahead" when the truth is 1521).
+ *
  * @param {{
  *   commits: Array<{ sha: string, author: string, message: string }>,
  *   lastSyncedSha: string,
  *   upstreamHeadSha: string,
  *   upstreamRepo: string,
+ *   totalCount: number,
  * }} args
  * @returns {string}
  */
-function formatIssueBody({ commits, lastSyncedSha, upstreamHeadSha, upstreamRepo }) {
+function formatIssueBody({ commits, lastSyncedSha, upstreamHeadSha, upstreamRepo, totalCount }) {
   if (!Array.isArray(commits)) {
     throw new Error('formatIssueBody: commits must be an array');
   }
   if (!REPO_RE.test(upstreamRepo)) {
     throw new Error(`formatIssueBody: upstreamRepo must be "owner/repo" (got: ${upstreamRepo})`);
   }
+  if (typeof totalCount !== 'number' || totalCount < 0 || !Number.isInteger(totalCount)) {
+    throw new Error(`formatIssueBody: totalCount must be a non-negative integer (got: ${totalCount})`);
+  }
 
   const compareUrl = `https://github.com/${upstreamRepo}/compare/${lastSyncedSha}...${upstreamHeadSha}`;
   const lines = [];
 
-  lines.push(`Upstream \`${upstreamRepo}\` has **${commits.length}** commit(s) ahead of the recorded baseline.`);
+  lines.push(`Upstream \`${upstreamRepo}\` has **${totalCount}** commit(s) ahead of the recorded baseline.`);
   lines.push('');
   lines.push(`- **Baseline**: \`${shortSha(lastSyncedSha)}\` (recorded in [\`upstream/.upstream-sync.json\`](../blob/main/upstream/.upstream-sync.json))`);
   lines.push(`- **Upstream HEAD**: \`${shortSha(upstreamHeadSha)}\``);
   lines.push(`- **Full diff**: ${compareUrl}`);
   lines.push('');
 
-  if (commits.length === 0) {
+  if (totalCount === 0) {
     lines.push('_No commits to show._');
     lines.push('');
   } else {
     const visible = commits.slice(0, COMMIT_BODY_LIMIT);
-    const truncated = commits.length - visible.length;
+    const omitted = totalCount - visible.length;
 
     lines.push('<details>');
-    lines.push(`<summary>Commits (${commits.length} total${truncated > 0 ? `, showing first ${visible.length}` : ''})</summary>`);
+    if (omitted === 0) {
+      lines.push(`<summary>Commits (${totalCount})</summary>`);
+    } else {
+      lines.push(`<summary>Commits (showing first ${visible.length} of ${totalCount})</summary>`);
+    }
     lines.push('');
     for (const c of visible) {
       const firstLine = (c.message || '').split('\n')[0].trim();
       lines.push(`- \`${shortSha(c.sha)}\` ${c.author ? `(@${c.author}) ` : ''}${firstLine}`);
     }
-    if (truncated > 0) {
-      lines.push(`- _… and ${truncated} more. See the [full diff](${compareUrl})._`);
+    if (omitted > 0) {
+      lines.push(`- _… and ${omitted} more. See the [full diff](${compareUrl})._`);
     }
     lines.push('');
     lines.push('</details>');
