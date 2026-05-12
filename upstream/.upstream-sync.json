@@ -1,0 +1,6 @@
+{
+  "upstream": "affaan-m/everything-claude-code",
+  "lastSyncedSha": "9db98673d054f5ed0991ba9d67ff4c883c81a42f",
+  "lastSyncedAt": "2026-02-09",
+  "notes": "Initial baseline recorded retroactively. EGC's first commit (ff331996) followed this ECC HEAD by 1h13m."
+}

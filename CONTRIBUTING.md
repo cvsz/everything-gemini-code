@@ -100,6 +100,30 @@ Command instructions...
 
 ---
 
+## Upstream contributions (ECC backports)
+
+EGC is an ecosystem port of [Everything Claude Code](https://github.com/affaan-m/everything-claude-code). When a contribution to EGC is harness-agnostic, it may also belong upstream in ECC. The full sync policy is in [`upstream/README.md`](upstream/README.md); the short version follows.
+
+### When a change belongs upstream too
+
+- The skill, rule, or workflow idea is not specific to Gemini CLI.
+- The bug exists in both repos (e.g., a logic error in shared rubric or validator concepts).
+- A new agent's intent translates cleanly to Claude Code's tool model.
+
+### How to dual-PR
+
+1. Land the change in EGC first (you control the merge and the review cycle is faster).
+2. Open a corresponding PR against `affaan-m/everything-claude-code`, porting out the Gemini-specific parts (file format, tool names, paths — see the conversion table below).
+3. Cross-link the two PRs in their descriptions so reviewers on either side can see the upstream/downstream pair.
+
+The maintainer of EGC is not affiliated with the maintainer of ECC; backports are a contributor-driven activity. Do not block an EGC PR on an upstream merge.
+
+### Recording an upstream sync
+
+When pulling new content from ECC into EGC, follow the procedure documented in [`upstream/README.md`](upstream/README.md) — update both the prose baseline section and `upstream/.upstream-sync.json`, then commit with a `docs: sync upstream baseline to <short-sha>` message.
+
+---
+
 ## Tool Name Conversion (Claude → Gemini)
 
 If you are migrating agents from Claude Code:

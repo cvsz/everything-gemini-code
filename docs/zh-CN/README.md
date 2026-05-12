@@ -1,5 +1,9 @@
 **Language:** [English](../../README.md) | [한국어](../ko-KR/README.md) | **简体中文**
 
+> **致谢：** 本项目通过将 [@affaan-m](https://github.com/affaan-m) 的 [Everything Claude Code](https://github.com/affaan-m/everything-claude-code) 迁移到 Gemini CLI 生态系统而构建。衷心感谢原作者的工作。
+>
+> EGC 是 ECC 的**生态系统移植版本（ecosystem port）**，不是 ECC 的官方发行版，也不声称与 ECC 在 API 或行为层面兼容。涉及 harness 自身的行为以 Gemini CLI 内部验证为准。同步策略、上游基线，以及在移植过程中改动了什么的类别级概览，请见 [`upstream/zh-CN/README.md`](../../upstream/zh-CN/README.md)。
+
 # Everything Gemini Code
 
 [![Stars](https://img.shields.io/github/stars/Jamkris/everything-gemini-code?style=flat)](https://github.com/Jamkris/everything-gemini-code/stargazers)
