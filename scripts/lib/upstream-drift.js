@@ -172,8 +172,12 @@ function compareUrl(upstreamRepo, baseSha, headSha) {
  * Translate the compare-API `commits` array into the simplified shape
  * `formatIssueBody` expects: `{ sha, author, message }`.
  *
- * Author preference: `author.login` (GitHub username) → `commit.author.name`
- * (raw git author name) → empty string.
+ * Author is ONLY populated from `c.author.login` (a real GitHub
+ * handle). Raw `commit.author.name` is intentionally not used as a
+ * fallback — the issue body prefixes `@`, so a raw name like
+ * "Jane Doe" would render as a misleading pseudo-mention `(@Jane Doe)`.
+ * When there is no login, `author` stays empty and `formatIssueBody`
+ * skips the `(@...)` prefix entirely.
  *
  * @param {object} compareResponse - the parsed `gh api .../compare/...` body
  * @returns {Array<{ sha: string, author: string, message: string }>}
@@ -182,9 +186,7 @@ function extractCommitsForBody(compareResponse) {
   if (!compareResponse || !Array.isArray(compareResponse.commits)) return [];
   return compareResponse.commits.map((c) => ({
     sha: typeof c.sha === 'string' ? c.sha : '',
-    author: (c.author && typeof c.author.login === 'string' && c.author.login)
-      || (c.commit && c.commit.author && typeof c.commit.author.name === 'string' && c.commit.author.name)
-      || '',
+    author: (c.author && typeof c.author.login === 'string') ? c.author.login : '',
     message: (c.commit && typeof c.commit.message === 'string') ? c.commit.message : '',
   }));
 }

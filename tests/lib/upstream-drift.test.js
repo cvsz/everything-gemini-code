@@ -229,7 +229,10 @@ test('extractCommitsForBody flattens the compare API shape', () => {
   const out = lib.extractCommitsForBody(compare);
   assert.strictEqual(out.length, 3);
   assert.strictEqual(out[0].author, 'octocat');
-  assert.strictEqual(out[1].author, 'Raw Name');
+  // Commits without a GitHub login (only a raw git author name) must
+  // leave author empty — otherwise the body would render misleading
+  // pseudo-mentions like "(@Jane Doe)".
+  assert.strictEqual(out[1].author, '');
   assert.strictEqual(out[2].author, '');
   assert.strictEqual(out[0].message, 'fix: thing\n\nbody');
 });
