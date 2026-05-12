@@ -112,6 +112,28 @@ function inspectFrontmatter(lines) {
 }
 
 /**
+ * Normalize a YAML scalar value before treating it as empty. Catches
+ * quoted-empty (`""`, `''`) and YAML null forms (`~`, `null`) that
+ * `inspectFrontmatter` leaves as literal strings — without this, a
+ * frontmatter line like `name: ""` or `name: null` would pass the
+ * non-empty check even though both encode the absence of a value.
+ *
+ * @param {string} value
+ * @returns {string}
+ */
+function normalizeYamlScalar(value) {
+  const v = value.trim();
+  if (/^(?:~|null)$/i.test(v)) return '';
+  if (
+    (v.startsWith('"') && v.endsWith('"') && v.length >= 2) ||
+    (v.startsWith("'") && v.endsWith("'") && v.length >= 2)
+  ) {
+    return v.slice(1, -1).trim();
+  }
+  return v;
+}
+
+/**
  * Validate a single skill directory.
  *
  * Returns `{ fatal }` where `fatal` indicates a structural error that
@@ -150,7 +172,7 @@ function validateSkillDir(dir, skillsDir, reportFrontmatterFinding) {
 
     if (!Object.prototype.hasOwnProperty.call(values, 'name')) {
       reportFrontmatterFinding(`${dir}/SKILL.md - frontmatter missing required field: name`);
-    } else if (values.name === '') {
+    } else if (normalizeYamlScalar(values.name) === '') {
       reportFrontmatterFinding(`${dir}/SKILL.md - frontmatter 'name' is empty`);
     }
 

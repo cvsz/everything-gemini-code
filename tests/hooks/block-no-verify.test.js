@@ -176,6 +176,21 @@ if (test('still blocks bypass flags in later chained git commands', () => {
   assert.ok(r.stderr.includes('git push'), `stderr should mention git push: ${r.stderr}`);
 })) passed++; else failed++;
 
+if (test('blocks -n hidden inside combined short option (-an)', () => {
+  const r = runHook({ tool_input: { command: 'git commit -an -m "msg"' } });
+  assert.strictEqual(r.code, 2, `expected exit 2, got ${r.code}`);
+})) passed++; else failed++;
+
+if (test('blocks -n hidden inside combined short option (-na)', () => {
+  const r = runHook({ tool_input: { command: 'git commit -na -m "msg"' } });
+  assert.strictEqual(r.code, 2, `expected exit 2, got ${r.code}`);
+})) passed++; else failed++;
+
+if (test('still allows -mn (n is inside -m message, not a flag)', () => {
+  const r = runHook({ tool_input: { command: 'git commit -mn' } });
+  assert.strictEqual(r.code, 0, `expected exit 0, got ${r.code}: ${r.stderr}`);
+})) passed++; else failed++;
+
 console.log('─'.repeat(50));
 console.log(`Passed: ${passed}  Failed: ${failed}`);
 

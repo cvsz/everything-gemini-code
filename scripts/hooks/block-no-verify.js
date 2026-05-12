@@ -238,7 +238,21 @@ function getCommitShortValueOption(value) {
 }
 
 function isCommitNoVerifyShortFlag(value) {
-  return value === '-n' || /^-n[a-zA-Z]/.test(value);
+  if (value === '-n') return true;
+  if (!value.startsWith('-') || value.startsWith('--') || value === '-') {
+    return false;
+  }
+  // Scan every character of a combined short-option token (e.g. -an, -na).
+  // A value-consuming flag like -m or -F (case-sensitive: 'm', 'F', 'C', 'c')
+  // ends the option chain — characters after it are the inline value, not
+  // further flags, so we must stop scanning there.
+  const options = value.slice(1);
+  for (let i = 0; i < options.length; i++) {
+    const char = options.charAt(i);
+    if (char === 'n') return true;
+    if (COMMIT_SHORT_OPTIONS_WITH_VALUE.has(char)) return false;
+  }
+  return false;
 }
 
 /**
