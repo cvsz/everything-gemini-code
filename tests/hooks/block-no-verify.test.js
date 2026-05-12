@@ -141,6 +141,72 @@ if (test('still blocks --no-verify when both quoted message and real flag are pr
   assert.strictEqual(r.code, 2, `expected exit 2, got ${r.code}`);
 })) passed++; else failed++;
 
+// --- Shell-words parsing fixes (ECC 0dcde13) ---
+
+if (test('blocks quoted core.hooksPath override argument', () => {
+  const r = runHook({ tool_input: { command: 'git -c "core.hooksPath=/dev/null" commit -m "msg"' } });
+  assert.strictEqual(r.code, 2, `expected exit 2, got ${r.code}`);
+  assert.ok(r.stderr.includes('core.hooksPath'), `stderr should mention core.hooksPath: ${r.stderr}`);
+})) passed++; else failed++;
+
+if (test('allows --no-verify after combined -am message option', () => {
+  const r = runHook({ tool_input: { command: 'git commit -am "--no-verify"' } });
+  assert.strictEqual(r.code, 0, `expected exit 0, got ${r.code}: ${r.stderr}`);
+})) passed++; else failed++;
+
+if (test('allows -n after combined -am message option', () => {
+  const r = runHook({ tool_input: { command: 'git commit -am "-n"' } });
+  assert.strictEqual(r.code, 0, `expected exit 0, got ${r.code}: ${r.stderr}`);
+})) passed++; else failed++;
+
+if (test('allows git bypass phrase discussed in a quoted commit message', () => {
+  const r = runHook({ tool_input: { command: 'git commit -m "doc: explain git push --no-verify risk"' } });
+  assert.strictEqual(r.code, 0, `expected exit 0, got ${r.code}: ${r.stderr}`);
+})) passed++; else failed++;
+
+if (test('still blocks a real quoted --no-verify flag', () => {
+  const r = runHook({ tool_input: { command: 'git commit "--no-verify" -m "msg"' } });
+  assert.strictEqual(r.code, 2, `expected exit 2, got ${r.code}`);
+  assert.ok(r.stderr.includes('BLOCKED'), `stderr should contain BLOCKED: ${r.stderr}`);
+})) passed++; else failed++;
+
+if (test('still blocks bypass flags in later chained git commands', () => {
+  const r = runHook({ tool_input: { command: 'git commit -m "msg" && git push --no-verify' } });
+  assert.strictEqual(r.code, 2, `expected exit 2, got ${r.code}`);
+  assert.ok(r.stderr.includes('git push'), `stderr should mention git push: ${r.stderr}`);
+})) passed++; else failed++;
+
+if (test('blocks -n hidden inside combined short option (-an)', () => {
+  const r = runHook({ tool_input: { command: 'git commit -an -m "msg"' } });
+  assert.strictEqual(r.code, 2, `expected exit 2, got ${r.code}`);
+})) passed++; else failed++;
+
+if (test('blocks -n hidden inside combined short option (-na)', () => {
+  const r = runHook({ tool_input: { command: 'git commit -na -m "msg"' } });
+  assert.strictEqual(r.code, 2, `expected exit 2, got ${r.code}`);
+})) passed++; else failed++;
+
+if (test('still allows -mn (n is inside -m message, not a flag)', () => {
+  const r = runHook({ tool_input: { command: 'git commit -mn' } });
+  assert.strictEqual(r.code, 0, `expected exit 0, got ${r.code}: ${r.stderr}`);
+})) passed++; else failed++;
+
+if (test('still allows -tn (n is the -t template path, not a flag)', () => {
+  const r = runHook({ tool_input: { command: 'git commit -tn -m "msg"' } });
+  assert.strictEqual(r.code, 0, `expected exit 0, got ${r.code}: ${r.stderr}`);
+})) passed++; else failed++;
+
+if (test('blocks case-variant core.hooksPath (lowercase)', () => {
+  const r = runHook({ tool_input: { command: 'git -c core.hookspath=/dev/null commit -m "msg"' } });
+  assert.strictEqual(r.code, 2, `expected exit 2, got ${r.code}`);
+  assert.ok(/core\.hooksPath/i.test(r.stderr), `stderr should mention core.hooksPath: ${r.stderr}`);
+})) passed++; else failed++;
+
+if (test('blocks case-variant core.hooksPath (uppercase)', () => {
+  const r = runHook({ tool_input: { command: 'git -c core.HOOKSPATH=/dev/null commit -m "msg"' } });
+  assert.strictEqual(r.code, 2, `expected exit 2, got ${r.code}`);
+})) passed++; else failed++;
+
 console.log('─'.repeat(50));
 console.log(`Passed: ${passed}  Failed: ${failed}`);
 
