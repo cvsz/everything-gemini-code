@@ -160,8 +160,8 @@ Result: Zero custom code, battle-tested solution
 ```
 Need: Resilient HTTP client with retries and timeout handling
 Search: npm "http client retry", PyPI "httpx retry"
-Found: got (Node) with retry plugin, httpx (Python) with built-in retry
-Action: ADOPT — use got/httpx directly with retry config
+Found: undici (Node) with retry interceptor, httpx (Python) with built-in retry
+Action: ADOPT — use undici/httpx directly with retry config
 Result: Zero custom code, production-proven libraries
 ```
 

@@ -82,9 +82,9 @@ Use this path for X Layer x402, Multi-Party Payment (MPP), session payment, char
 
 For buyer-side agent flows:
 
-1. Install or reference the current `okx/onchainos-skills` repository.
-2. Use `skills/okx-agent-payments-protocol/SKILL.md` as the dispatcher.
-3. Treat `skills/okx-x402-payment/SKILL.md` as a deprecated compatibility alias, not as the canonical skill.
+1. Install or reference the current [`okx/onchainos-skills`](https://github.com/okx/onchainos-skills) repository — these skills live in that external repo, not in EGC.
+2. Use [`okx-agent-payments-protocol`](https://github.com/okx/onchainos-skills/tree/main/skills/okx-agent-payments-protocol) (in the `okx/onchainos-skills` repo) as the dispatcher.
+3. Treat [`okx-x402-payment`](https://github.com/okx/onchainos-skills/tree/main/skills/okx-x402-payment) (same repo) as a deprecated compatibility alias, not as the canonical skill.
 4. Require explicit user confirmation before wallet status checks or payment actions. Do not hide payment execution behind a generic tool call.
 
 For seller-side API flows, fetch the latest language-specific guide before generating code:
