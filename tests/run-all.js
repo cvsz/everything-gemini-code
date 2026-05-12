@@ -18,6 +18,7 @@ const testFiles = [
   'lib/gemini-tools.test.js',
   'lib/grok-engine.test.js',
   'lib/grok-cli.test.js',
+  'lib/upstream-drift.test.js',
   'hooks/hooks.test.js',
   'hooks/block-no-verify.test.js',
   'ci/validate-workflow-security.test.js',
