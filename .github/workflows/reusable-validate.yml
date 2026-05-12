@@ -34,7 +34,7 @@ jobs:
         run: node scripts/ci/validate-commands.js
 
       - name: Validate skills
-        run: node scripts/ci/validate-skills.js
+        run: node scripts/ci/validate-skills.js --strict
 
       - name: Validate workflow security
         run: node scripts/ci/validate-workflow-security.js
