@@ -49,10 +49,10 @@ Recommended if you use **Antigravity** (VS Code / Cursor) or need to customize t
 
 ```bash
 # Antigravity only
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Jamkris/everything-gemini-code/main/scripts/install.sh)" -- --antigravity
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Jamkris/everything-gemini-code/refs/tags/v1.3.12/scripts/install.sh)" -- --antigravity
 
 # CLI + Antigravity
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Jamkris/everything-gemini-code/main/scripts/install.sh)" -- --all
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Jamkris/everything-gemini-code/refs/tags/v1.3.12/scripts/install.sh)" -- --all
 ```
 
 ### Manual installation
@@ -89,12 +89,17 @@ gemini extensions link .
 # Extension install
 gemini extensions uninstall https://github.com/Jamkris/everything-gemini-code
 
-# Script-based install (selective — only files installed by this extension)
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Jamkris/everything-gemini-code/main/scripts/uninstall.sh)" -- --antigravity
+# Script-based install (Antigravity only — selective)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Jamkris/everything-gemini-code/refs/tags/v1.3.12/scripts/uninstall.sh)" -- --antigravity
 
-# Script-based install (full — deletes everything in the target dirs)
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Jamkris/everything-gemini-code/main/scripts/uninstall.sh)" -- --antigravity --purge
+# Script-based install (CLI + Antigravity — selective)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Jamkris/everything-gemini-code/refs/tags/v1.3.12/scripts/uninstall.sh)" -- --all
+
+# Script-based install (Antigravity, full — deletes everything in target dirs)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Jamkris/everything-gemini-code/refs/tags/v1.3.12/scripts/uninstall.sh)" -- --antigravity --purge
 ```
+
+> **Why the pinned tag?** `curl | bash` from a moving branch is reproducibility- and supply-chain-unsafe. The URLs above point at the `v1.3.12` release tag. To check what's running, view the script at <https://github.com/Jamkris/everything-gemini-code/blob/v1.3.12/scripts/install.sh> before executing.
 
 </details>
 
