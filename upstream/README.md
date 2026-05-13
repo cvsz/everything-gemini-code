@@ -4,7 +4,7 @@
 
 ![Upstream Sync](https://img.shields.io/badge/Upstream_Sync-Best_effort-blue)
 ![Upstream](https://img.shields.io/badge/upstream-affaan--m%2Feverything--claude--code-informational)
-![Baseline](https://img.shields.io/badge/baseline-9db98673-informational)
+![Baseline](https://img.shields.io/badge/baseline-e9c88458-informational)
 
 EGC (Everything Gemini Code) is an **ecosystem port** of [ECC (Everything Claude Code)](https://github.com/affaan-m/everything-claude-code) by [@affaan-m](https://github.com/affaan-m). It is not an official ECC release and does not claim API or behavioral compatibility with ECC. Harness-specific behavior is verified inside Gemini CLI itself, not by reference to ECC's Claude Code behavior.
 
@@ -15,8 +15,9 @@ This document records how EGC tracks the upstream ECC repository and what was ch
 ## Upstream baseline
 
 - **Upstream repository**: [`affaan-m/everything-claude-code`](https://github.com/affaan-m/everything-claude-code)
-- **Last-synced upstream commit**: [`9db98673d054f5ed0991ba9d67ff4c883c81a42f`](https://github.com/affaan-m/everything-claude-code/commit/9db98673d054f5ed0991ba9d67ff4c883c81a42f)
-- **Last-synced date**: 2026-02-09
+- **Last-synced upstream commit**: [`e9c8845833415204db993a3b0d0bf337fded23da`](https://github.com/affaan-m/everything-claude-code/commit/e9c8845833415204db993a3b0d0bf337fded23da)
+- **Last-synced date**: 2026-05-13
+- **Round notes**: see [`sync-rounds/2026-05-12.md`](sync-rounds/2026-05-12.md) for per-commit triage from the 2026-05-12 round. The SHA above is the last commit *evaluated*; not every commit in the focused range was ported.
 - **Initial EGC commit**: [`ff331996a061c2bbd17ffaa23d4eed2dcdd6ad35`](https://github.com/Jamkris/everything-gemini-code/commit/ff331996a061c2bbd17ffaa23d4eed2dcdd6ad35) (2026-02-09)
 
 A machine-readable copy of this state lives at [`.upstream-sync.json`](./.upstream-sync.json). A CI validator (`scripts/ci/validate-upstream-sync.js`) asserts that the two files agree on the SHA, so a mismatch blocks the PR automatically.
