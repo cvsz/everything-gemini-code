@@ -1,6 +1,6 @@
 {
   "upstream": "affaan-m/everything-claude-code",
-  "lastSyncedSha": "e9c8845833415204db993a3b0d0bf337fded23da",
+  "lastSyncedSha": "393d397efa40a9e9b6c7296df8181860ebf5047e",
   "lastSyncedAt": "2026-05-13",
-  "notes": "Round 2 sync. Triage and per-commit dispositions: upstream/sync-rounds/2026-05-12.md. The SHA is the last commit *evaluated* — not necessarily the last commit ported. Ports landed: #67 (skill curation), #68 (hooks + validators), #69 (plan command graceful degradation). Skips and architectural mismatches are recorded against the audit log."
+  "notes": "Round 3 sync. Triage and per-commit dispositions: upstream/sync-rounds/2026-05-13.md. The SHA is the last commit *evaluated* — not necessarily the last commit ported. Ports landed: #75 (code-reviewer guardrails + prompt defense baselines). Net-new ECC features (PRD command, network architect agents, motion skills, Quarkus, Django Celery, cost tracking, frontend design, homelab configs) deferred to a future net-new round."
 }
