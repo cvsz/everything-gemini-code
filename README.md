@@ -8,116 +8,100 @@
 
 [![Stars](https://img.shields.io/github/stars/Jamkris/everything-gemini-code?style=flat)](https://github.com/Jamkris/everything-gemini-code/stargazers)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+![Skills](https://img.shields.io/badge/skills-183-green)
+![Agents](https://img.shields.io/badge/agents-48-purple)
+![Commands](https://img.shields.io/badge/commands-80-blue)
 
-**A comprehensive configuration suite for Gemini CLI / Antigravity.**
+**Battle-tested agents, skills, and workflows for Gemini CLI / Antigravity.**
 
-This extension provides production-ready agents, skills, hooks, commands, rules, and MCP configurations designed to supercharge your development workflow with Gemini.
+Ports 183 skills and 48 agents from [Everything Claude Code](https://github.com/affaan-m/everything-claude-code), retuned for Gemini's tool model. Adds Gemini-native features like `/egc-grok` — a whole-repo audit that uses Gemini's 1M context window in a single pass (Claude Code's 200K can't).
 
 ---
 
-## 🚀 Quick Start
+## What you can do
 
-npm install -g @google/gemini-cli@latest
+- **Audit your whole repo in one pass** — `/egc-grok` uses Gemini's 1M context to map architecture, find dead files, detect circular deps. No file-by-file scrolling.
+- **Plan-before-code workflow** — `@planner` returns a phased breakdown with risks and dependencies. WAITs for your confirm before writing anything.
+- **Test-driven feature flow** — `/egc-tdd` + `@tdd-guide` enforce write-tests-first with 80%+ coverage.
+- **Security review on demand** — `@security-reviewer` flags OWASP top 10, hardcoded secrets, injection risks before commit.
+- **183 skills, on-demand** — Clean Architecture, MCP, Remotion, Django, x402 payments, and more. Loaded only when referenced.
 
-````
+---
 
-### Authentication (Required)
-
-The Gemini CLI requires an API key to function.
-
-1.  Get your API key from [Google AI Studio](https://aistudio.google.com/).
-2.  Set it as an environment variable:
-
-```bash
-export GEMINI_API_KEY="your_api_key_here"
-````
-
-Or configure it using the CLI (if supported by your version):
-
-```bash
-gemini config set apiKey "your_api_key_here"
-```
-
-### Option 1: Install via Gemini CLI (Recommended)
-
-The easiest way to install. This will automatically set up the extension for Gemini CLI.
+## Quick Start
 
 ```bash
 gemini extensions install https://github.com/Jamkris/everything-gemini-code
 ```
 
-### Option 2: Install via Script (For Antigravity & Advanced Users)
+That's it. No clone, no symlinks. Requires `GEMINI_API_KEY` in your environment ([get one from Google AI Studio](https://aistudio.google.com/)):
+
+```bash
+export GEMINI_API_KEY="your_api_key_here"
+```
+
+<details>
+<summary><strong>Other install methods (Antigravity, manual, dev mode, uninstall)</strong></summary>
+
+### Install via Script (Antigravity / advanced)
 
 Recommended if you use **Antigravity** (VS Code / Cursor) or need to customize the installation. Existing configurations will be updated.
 
 ```bash
-# Install for Antigravity (Recommended)
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Jamkris/everything-gemini-code/main/scripts/install.sh)" -- --antigravity
+# Antigravity only
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Jamkris/everything-gemini-code/refs/tags/v1.3.12/scripts/install.sh)" -- --antigravity
 
-# Install All (CLI + Antigravity)
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Jamkris/everything-gemini-code/main/scripts/install.sh)" -- --all
+# CLI + Antigravity
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Jamkris/everything-gemini-code/refs/tags/v1.3.12/scripts/install.sh)" -- --all
 ```
 
-### Option 1: Uninstallation (Recommended)
+### Manual installation
 
 ```bash
-gemini extensions uninstall https://github.com/Jamkris/everything-gemini-code
-```
-
-### Option 2: Uninstallation (Manual Script)
-
-```bash
-# Selective Uninstall (Recommended): Removes only files installed by this extension.
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Jamkris/everything-gemini-code/main/scripts/uninstall.sh)" -- --antigravity
-
-# Full Uninstall (Caution): Deletes ALL files in the target directories.
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Jamkris/everything-gemini-code/main/scripts/uninstall.sh)" -- --antigravity --purge
-```
-
-### Option 2: Manual Installation (Advanced)
-
-If you prefer manual control or need to customize specific components:
-
-```bash
-# Clone the repository
 git clone https://github.com/Jamkris/everything-gemini-code.git
 
-# Copy agents
+# Copy agents, commands, skills
 cp everything-gemini-code/agents/*.md ~/.gemini/agents/
-
-# Copy commands (Gemini CLI)
 cp everything-gemini-code/commands/*.toml ~/.gemini/commands/
-
-# Copy workflows (Antigravity)
-# Note: For Antigravity, use ~/.gemini/antigravity/global_workflows/
-cp everything-gemini-code/workflows/*.md ~/.gemini/antigravity/global_workflows/
-
-# Copy skills
 cp -r everything-gemini-code/skills/* ~/.gemini/skills/
 
+# Antigravity workflows (optional)
+cp everything-gemini-code/workflows/*.md ~/.gemini/antigravity/global_workflows/
 ```
 
-> **For Antigravity Users:**
-> If you are manually installing for Antigravity, copying to `~/.gemini/antigravity/` subdirectories (`global_agents`, `global_skills`) is recommended for full compatibility. The `install.sh` script handles this automatically.
+> **For Antigravity users:** copying to `~/.gemini/antigravity/` subdirectories (`global_agents`, `global_skills`) is recommended for full compatibility. `install.sh` handles this automatically.
 >
-> **Note:** Rules are bundled into `~/.gemini/GEMINI.md` via `install.sh`. For manual installs, copy a template: `cp everything-gemini-code/templates/GEMINI_GLOBAL.md ~/.gemini/GEMINI.md`
+> **Rules:** Bundled into `~/.gemini/GEMINI.md` by `install.sh`. For manual installs, copy a template: `cp everything-gemini-code/templates/GEMINI_GLOBAL.md ~/.gemini/GEMINI.md`
 
-````
+### Developer mode (link instead of copy)
 
-### Option 3: Install as Gemini CLI Extension (Developer Mode)
-
-You can link this repository directly to Gemini CLI as an extension. This allows you to develop and test changes in real-time.
+For developing or contributing to this extension:
 
 ```bash
-# Clone the repository
 git clone https://github.com/Jamkris/everything-gemini-code.git
 cd everything-gemini-code
-
-# Link the extension
 gemini extensions link .
-````
+```
 
-> ⚠️ **Note:** Rules are generated into `~/.gemini/GEMINI.md` by the install script. For extension-only installs, copy a template manually: `cp templates/GEMINI_GLOBAL.md ~/.gemini/GEMINI.md`
+### Uninstall
+
+```bash
+# Extension install
+gemini extensions uninstall https://github.com/Jamkris/everything-gemini-code
+
+# Script-based install (Antigravity only — selective)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Jamkris/everything-gemini-code/refs/tags/v1.3.12/scripts/uninstall.sh)" -- --antigravity
+
+# Script-based install (CLI + Antigravity — selective)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Jamkris/everything-gemini-code/refs/tags/v1.3.12/scripts/uninstall.sh)" -- --all
+
+# Script-based install (Antigravity, full — deletes everything in target dirs)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Jamkris/everything-gemini-code/refs/tags/v1.3.12/scripts/uninstall.sh)" -- --antigravity --purge
+```
+
+> **Why the pinned tag?** `curl | bash` from a moving branch is reproducibility- and supply-chain-unsafe. The URLs above point at the `v1.3.12` release tag. To check what's running, view the script at <https://github.com/Jamkris/everything-gemini-code/blob/v1.3.12/scripts/install.sh> before executing.
+
+</details>
 
 ---
 
