@@ -4,7 +4,7 @@
 
 ![Upstream Sync](https://img.shields.io/badge/Upstream_Sync-Best_effort-blue)
 ![Upstream](https://img.shields.io/badge/upstream-affaan--m%2Feverything--claude--code-informational)
-![Baseline](https://img.shields.io/badge/baseline-e9c88458-informational)
+![Baseline](https://img.shields.io/badge/baseline-393d397e-informational)
 
 EGC (Everything Gemini Code) 是 [@affaan-m](https://github.com/affaan-m) 的 [ECC (Everything Claude Code)](https://github.com/affaan-m/everything-claude-code) 的**生态系统移植版本（ecosystem port）**。它不是 ECC 的官方发行版，也不声称与 ECC 在 API 或行为层面兼容。涉及 harness 自身的行为以 Gemini CLI 内部验证为准，不参照 ECC 在 Claude Code 中的表现。
 
@@ -15,9 +15,9 @@ EGC (Everything Gemini Code) 是 [@affaan-m](https://github.com/affaan-m) 的 [E
 ## 上游基线
 
 - **上游仓库**: [`affaan-m/everything-claude-code`](https://github.com/affaan-m/everything-claude-code)
-- **最近一次同步的提交**: [`e9c8845833415204db993a3b0d0bf337fded23da`](https://github.com/affaan-m/everything-claude-code/commit/e9c8845833415204db993a3b0d0bf337fded23da)
+- **最近一次同步的提交**: [`393d397efa40a9e9b6c7296df8181860ebf5047e`](https://github.com/affaan-m/everything-claude-code/commit/393d397efa40a9e9b6c7296df8181860ebf5047e)
 - **最近一次同步的日期**: 2026-05-13
-- **回合记录**: 2026-05-12 回合的逐提交分类见 [`sync-rounds/2026-05-12.md`](../sync-rounds/2026-05-12.md)。上面的 SHA 是*评估到*的最后一个提交；并非所有进入焦点范围的提交都被移植。
+- **回合记录**: 最新回合见 [`sync-rounds/2026-05-13.md`](../sync-rounds/2026-05-13.md)，首次 triage 见 [`sync-rounds/2026-05-12.md`](../sync-rounds/2026-05-12.md)。上面的 SHA 是*评估到*的最后一个提交；并非所有进入焦点范围的提交都被移植。
 - **EGC 的首次提交**: [`ff331996a061c2bbd17ffaa23d4eed2dcdd6ad35`](https://github.com/Jamkris/everything-gemini-code/commit/ff331996a061c2bbd17ffaa23d4eed2dcdd6ad35) (2026-02-09)
 
 该状态的机器可读副本位于 [`.upstream-sync.json`](../.upstream-sync.json)。CI 校验器 (`scripts/ci/validate-upstream-sync.js`) 会断言两个文件中的 SHA 一致；不一致的 PR 将被自动阻拦。
