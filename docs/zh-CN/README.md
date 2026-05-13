@@ -92,6 +92,27 @@ gemini extensions uninstall https://github.com/Jamkris/everything-gemini-code
 
 </details>
 
+### 首次命令
+
+安装完成后，在 Gemini CLI 中：
+
+```bash
+# 一次性审计整个仓库
+/egc-grok
+
+# 规划功能实现
+/egc-plan "添加用户认证"
+
+# 启动 TDD 工作流
+/egc-tdd "创建用户服务"
+
+# 直接调用 Agent
+@architect "设计微服务架构"
+@security-reviewer "审计此文件的注入漏洞"
+```
+
+> **Antigravity 用户注意：** 工作流使用裸名称安装（例如 `/tdd`、`/code-review`、`/build-fix`）。只有与 Antigravity 内置 `/plan` 冲突的 `/egc-plan` 会加上 `egc-` 前缀。在 Gemini CLI 中，所有命令都使用 `egc-` 前缀以避免与内置命令集冲突。
+
 ---
 
 ## 💻 使用方法
