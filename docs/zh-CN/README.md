@@ -8,58 +8,89 @@
 
 [![Stars](https://img.shields.io/github/stars/Jamkris/everything-gemini-code?style=flat)](https://github.com/Jamkris/everything-gemini-code/stargazers)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+![Skills](https://img.shields.io/badge/skills-183-green)
+![Agents](https://img.shields.io/badge/agents-48-purple)
+![Commands](https://img.shields.io/badge/commands-80-blue)
 
-**适用于 Gemini CLI / Antigravity 的综合配置套件。**
+**适用于 Gemini CLI / Antigravity 的经过实战检验的 Agents、Skills 和 Workflows。**
 
-该扩展提供了生产级的 Agents、Skills、Hooks、Commands、Rules 和 MCP 配置，旨在通过 Gemini 极大地增强您的开发工作流。
+从 [Everything Claude Code](https://github.com/affaan-m/everything-claude-code) 移植了 183 个 Skills 和 48 个 Agents，并针对 Gemini 的工具模型重新调整。新增了 `/egc-grok` 等 Gemini 原生功能 —— 使用 Gemini 的 1M 上下文窗口一次性审计整个仓库（Claude Code 的 200K 上下文做不到）。
 
 ---
 
-## 🚀 快速开始
+## 你能做什么
 
-### 选项 1：通过 Gemini CLI 安装（推荐）
+- **一次性审计整个仓库** — `/egc-grok` 利用 Gemini 的 1M 上下文绘制架构图、查找死文件、检测循环依赖。无需逐文件翻阅。
+- **先规划后编码** — `@planner` 返回带风险和依赖的分阶段方案，在写代码前等待你的确认。
+- **测试驱动流程** — `/egc-tdd` + `@tdd-guide` 强制先写测试 + 80% 以上覆盖率。
+- **按需安全审查** — `@security-reviewer` 在提交前标记 OWASP Top 10、硬编码 secrets、注入风险。
+- **183 个 Skills，按需加载** — Clean Architecture、MCP、Remotion、Django、x402 支付等。仅在被引用时加载。
+
+---
+
+## 快速开始
 
 ```bash
-# 直接从 GitHub 安装
 gemini extensions install https://github.com/Jamkris/everything-gemini-code
 ```
 
-### 选项 2：手动安装（高级）
-
-如果您偏好手动控制或需要自定义特定组件：
+就这些。无需 clone、无需软链。只需环境变量中有 `GEMINI_API_KEY`（[从 Google AI Studio 获取](https://aistudio.google.com/)）：
 
 ```bash
-# 克隆仓库
+export GEMINI_API_KEY="your_api_key_here"
+```
+
+<details>
+<summary><strong>其他安装方式（Antigravity / 手动 / 开发模式 / 卸载）</strong></summary>
+
+### 脚本安装（Antigravity / 高级）
+
+如果您使用 **Antigravity**（VS Code / Cursor）或需要自定义安装，推荐此方式。会更新现有配置。
+
+```bash
+# 仅 Antigravity
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Jamkris/everything-gemini-code/refs/tags/v1.3.12/scripts/install.sh)" -- --antigravity
+
+# CLI + Antigravity
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Jamkris/everything-gemini-code/refs/tags/v1.3.12/scripts/install.sh)" -- --all
+```
+
+### 手动安装
+
+```bash
 git clone https://github.com/Jamkris/everything-gemini-code.git
 
 # 复制 Agents
 cp everything-gemini-code/agents/*.md ~/.gemini/agents/
 
 # 复制 Commands
-cp everything-gemini-code/commands/*.md ~/.gemini/commands/
+cp everything-gemini-code/commands/*.toml ~/.gemini/commands/
 
 # 复制 Skills
 cp -r everything-gemini-code/skills/* ~/.gemini/skills/
-
 ```
 
-> ⚠️ **注意：** 规则通过 `install.sh` 生成到 `~/.gemini/GEMINI.md`。手动安装时：`cp everything-gemini-code/templates/GEMINI_GLOBAL.md ~/.gemini/GEMINI.md`
+> ⚠️ **注意：** 规则通过 `install.sh` 生成到 `~/.gemini/GEMINI.md`。手动安装时执行：`cp everything-gemini-code/templates/GEMINI_GLOBAL.md ~/.gemini/GEMINI.md`
 
-### 选项 1：卸载（推荐）
+### 卸载
 
 ```bash
+# 扩展安装
 gemini extensions uninstall https://github.com/Jamkris/everything-gemini-code
+
+# 脚本安装（仅 Antigravity，选择性）
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Jamkris/everything-gemini-code/refs/tags/v1.3.12/scripts/uninstall.sh)" -- --antigravity
+
+# 脚本安装（CLI + Antigravity，选择性）
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Jamkris/everything-gemini-code/refs/tags/v1.3.12/scripts/uninstall.sh)" -- --all
+
+# 脚本安装（Antigravity，完全 — 删除目标目录中的所有文件）
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Jamkris/everything-gemini-code/refs/tags/v1.3.12/scripts/uninstall.sh)" -- --antigravity --purge
 ```
 
-### 选项 2：卸载（手动脚本）
+> **为什么钉版本标签？** 直接对移动的分支执行 `curl | bash` 在可复现性和供应链安全方面都不可靠。上面的 URL 指向 `v1.3.12` 发布标签。执行前请通过 <https://github.com/Jamkris/everything-gemini-code/blob/v1.3.12/scripts/install.sh> 审查实际运行的脚本。
 
-```bash
-# 选择性卸载（推荐）：仅卸载此扩展安装的文件。
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Jamkris/everything-gemini-code/main/scripts/uninstall.sh)" -- --antigravity
-
-# 完全卸载（警告）：删除目标目录中的所有文件。
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Jamkris/everything-gemini-code/main/scripts/uninstall.sh)" -- --antigravity --purge
-```
+</details>
 
 ---
 

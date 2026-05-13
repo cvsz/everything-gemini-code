@@ -8,54 +8,80 @@
 
 [![Stars](https://img.shields.io/github/stars/Jamkris/everything-gemini-code?style=flat)](https://github.com/Jamkris/everything-gemini-code/stargazers)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](../../LICENSE)
+![Skills](https://img.shields.io/badge/skills-183-green)
+![Agents](https://img.shields.io/badge/agents-48-purple)
+![Commands](https://img.shields.io/badge/commands-80-blue)
 ![Shell](https://img.shields.io/badge/-Shell-4EAA25?logo=gnu-bash&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/-TypeScript-3178C6?logo=typescript&logoColor=white)
 ![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white)
 ![Go](https://img.shields.io/badge/-Go-00ADD8?logo=go&logoColor=white)
 
-**Gemini CLI / Antigravity를 위한 종합 설정 및 에이전트 시스템.**
+**Gemini CLI / Antigravity 를 위한 검증된 에이전트, 스킬, 워크플로우 모음.**
 
-단순한 설정 파일 모음이 아닙니다. 에이전트, 스킬, 훅, 커맨드, 룰, MCP 설정을 아우르는 완전한 시스템입니다.
-실제 프로덕트를 만들며 매일 집중적으로 사용해 발전시킨 프로덕션 레벨의 설정이 포함되어 있습니다.
-
-**Gemini CLI**, **Antigravity** 등 다양한 AI 에이전트 환경에서 사용할 수 있습니다.
+[Everything Claude Code](https://github.com/affaan-m/everything-claude-code)에서 183개 스킬과 48개 에이전트를 Gemini 의 툴 모델로 포팅했습니다. `/egc-grok` 같은 Gemini 전용 기능도 추가되어 있어요 — Gemini 의 1M 컨텍스트로 레포 전체를 한 번에 감사하는 명령어입니다 (Claude Code 의 200K 로는 불가능한 영역).
 
 ---
 
-## 🚀 빠른 시작
+## 무엇을 할 수 있나
 
-### 1단계: Gemini CLI 설치
+- **레포 전체를 한 번에 감사** — `/egc-grok` 이 Gemini 의 1M 컨텍스트로 아키텍처 맵, 데드 파일, 순환 의존을 한 번에 추출합니다. 파일별 스크롤 불필요.
+- **계획-먼저 워크플로우** — `@planner` 가 단계별 분해 + 리스크 + 의존성을 반환하고, 코드 작성 전에 사용자의 확인을 기다립니다.
+- **테스트-우선 흐름** — `/egc-tdd` + `@tdd-guide` 가 테스트 먼저 + 80% 이상 커버리지를 강제합니다.
+- **온디맨드 보안 리뷰** — `@security-reviewer` 가 OWASP Top 10, 하드코딩된 시크릿, 인젝션 위험을 커밋 전에 표시합니다.
+- **183개 스킬, 필요할 때만** — Clean Architecture, MCP, Remotion, Django, x402 결제 등. 참조될 때만 로드됩니다.
 
-```bash
-npm install -g @google/gemini-cli@latest
-```
+---
 
-### 2단계: API 키 설정
-
-1. [Google AI Studio](https://aistudio.google.com/)에서 API 키를 발급받으세요.
-2. 환경 변수로 설정하세요:
-
-```bash
-export GEMINI_API_KEY="your_api_key_here"
-```
-
-### 3단계: 확장 설치 (권장)
+## 빠른 시작
 
 ```bash
 gemini extensions install https://github.com/Jamkris/everything-gemini-code
 ```
 
-Antigravity 사용자는 스크립트를 사용하세요:
+끝. 클론도 심볼릭링크도 필요 없습니다. 환경 변수에 `GEMINI_API_KEY` 만 있으면 됩니다 ([Google AI Studio 에서 발급](https://aistudio.google.com/)):
 
 ```bash
-# Antigravity용 설치
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Jamkris/everything-gemini-code/main/scripts/install.sh)" -- --antigravity
-
-# CLI + Antigravity 모두 설치
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Jamkris/everything-gemini-code/main/scripts/install.sh)" -- --all
+export GEMINI_API_KEY="your_api_key_here"
 ```
 
-### 4단계: 사용 시작
+<details>
+<summary><strong>다른 설치 방법 (Antigravity / 수동 / 개발 모드 / 제거)</strong></summary>
+
+### 스크립트로 설치 (Antigravity / 고급)
+
+**Antigravity** (VS Code / Cursor) 를 쓰거나 설치를 커스터마이즈해야 한다면 권장됩니다. 기존 설정은 갱신됩니다.
+
+```bash
+# Antigravity 만
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Jamkris/everything-gemini-code/refs/tags/v1.3.12/scripts/install.sh)" -- --antigravity
+
+# CLI + Antigravity
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Jamkris/everything-gemini-code/refs/tags/v1.3.12/scripts/install.sh)" -- --all
+```
+
+### 제거
+
+```bash
+# 익스텐션 설치
+gemini extensions uninstall https://github.com/Jamkris/everything-gemini-code
+
+# 스크립트 설치 (Antigravity 만, 선택적)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Jamkris/everything-gemini-code/refs/tags/v1.3.12/scripts/uninstall.sh)" -- --antigravity
+
+# 스크립트 설치 (CLI + Antigravity, 선택적)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Jamkris/everything-gemini-code/refs/tags/v1.3.12/scripts/uninstall.sh)" -- --all
+
+# 스크립트 설치 (Antigravity, 풀 — 타깃 디렉토리 전체 삭제)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Jamkris/everything-gemini-code/refs/tags/v1.3.12/scripts/uninstall.sh)" -- --antigravity --purge
+```
+
+> **왜 태그를 핀하나요?** 움직이는 브랜치를 향해 `curl | bash` 하는 건 재현성과 공급망 안전성 측면에서 위험합니다. 위 URL 들은 `v1.3.12` 릴리스 태그를 가리킵니다. 실제로 무엇이 실행되는지 확인하려면 <https://github.com/Jamkris/everything-gemini-code/blob/v1.3.12/scripts/install.sh> 를 먼저 보세요.
+
+</details>
+
+### 첫 명령어
+
+설치 후 Gemini CLI 에서:
 
 ```bash
 # 기능 구현 계획
@@ -64,20 +90,15 @@ Antigravity 사용자는 스크립트를 사용하세요:
 # TDD 워크플로우 시작
 /egc-tdd "사용자 서비스 생성"
 
-# 코드 리뷰 실행
-/egc-code-review
+# 레포 전체 감사
+/egc-grok
 
 # 에이전트 직접 호출
 @architect "마이크로서비스 아키텍처 설계"
 @security-reviewer "이 파일의 인젝션 취약점 감사"
 ```
 
-> **Antigravity 사용자 참고:** 워크플로우는 bare name 으로 설치됩니다
-> (예: `/tdd`, `/code-review`, `/build-fix`). Antigravity 내장 `/plan` 과
-> 충돌하는 `/egc-plan` 에만 `egc-` 프리픽스가 붙습니다. Gemini CLI 에서는
-> 내장 커맨드 충돌 방지를 위해 모든 커맨드가 `egc-` 프리픽스를 사용합니다.
-
-✨ **완료!** 이제 28개 에이전트, 125개 스킬, 60개 커맨드를 사용할 수 있습니다.
+> **Antigravity 사용자 참고:** 워크플로우는 bare name 으로 설치됩니다 (예: `/tdd`, `/code-review`, `/build-fix`). Antigravity 내장 `/plan` 과 충돌하는 `/egc-plan` 에만 `egc-` 프리픽스가 붙습니다. Gemini CLI 에서는 내장 커맨드 충돌 방지를 위해 모든 커맨드가 `egc-` 프리픽스를 사용합니다.
 
 ---
 
@@ -89,7 +110,7 @@ Antigravity 사용자는 스크립트를 사용하세요:
 everything-gemini-code/
 ├── gemini-extension.json  # 확장 매니페스트
 │
-├── agents/                # 전문 서브에이전트 (28개)
+├── agents/                # 전문 서브에이전트 (48개)
 │   ├── planner.md           # 기능 구현 계획
 │   ├── architect.md         # 시스템 설계 의사결정
 │   ├── tdd-guide.md         # 테스트 주도 개발
@@ -118,7 +139,7 @@ everything-gemini-code/
 │   ├── rust-build-resolver.md  # Rust 빌드 에러 해결
 │   └── pytorch-build-resolver.md # PyTorch/CUDA 훈련 에러
 │
-├── skills/                # 워크플로우 정의 및 도메인 지식 (125개)
+├── skills/                # 워크플로우 정의 및 도메인 지식 (183개)
 │   ├── coding-standards/          # 언어 모범 사례
 │   ├── backend-patterns/          # API, 데이터베이스, 캐싱 패턴
 │   ├── frontend-patterns/         # React, Next.js 패턴
@@ -147,7 +168,7 @@ everything-gemini-code/
 │   ├── search-first/              # 리서치-먼저 개발 워크플로우
 │   └── 그 외 100개+ 스킬...
 │
-├── commands/              # Gemini CLI 커맨드 (.toml, 60개)
+├── commands/              # Gemini CLI 커맨드 (.toml, 80개)
 │   ├── plan.toml            # /egc-plan - 구현 계획
 │   ├── tdd.toml             # /egc-tdd - 테스트 주도 개발
 │   ├── code-review.toml     # /egc-code-review - 코드 리뷰
