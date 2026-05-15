@@ -23,7 +23,7 @@
 				"description": "Block dev servers outside tmux - ensures you can access logs"
 			},
 			{
-				"matcher": "tool == \"run_shell_command\" && tool_input.command matches \"^\\\\s*(npm (install|test|i|ci)|pnpm (install|test|i)|yarn (install|test|add|remove|upgrade)?|bun (install|test|i|add|remove)|cargo build|make|docker|pytest|vitest|playwright)\\\\b\"",
+				"matcher": "tool == \"run_shell_command\" && tool_input.command matches \"^\\\\s*(npm (install|test|i|ci)|pnpm (install|test|i)|yarn (install|test|add|remove|upgrade)|bun (install|test|i|add|remove)|cargo build|make|docker|pytest|vitest|playwright)\\\\b\"",
 				"hooks": [
 					{
 						"type": "command",
