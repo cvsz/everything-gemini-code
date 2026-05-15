@@ -43,14 +43,14 @@
 				"description": "Reminder before git push to review changes"
 			},
 			{
-				"matcher": "tool == \"write_file\" && tool_input.file_path matches \"\\\\.(md|txt)$\" && !(tool_input.file_path matches \"README\\\\.md|CLAUDE\\\\.md|AGENTS\\\\.md|CONTRIBUTING\\\\.md\")",
+				"matcher": "tool == \"write_file\" && tool_input.file_path matches \"\\\\.(md|txt)$\" && !(tool_input.file_path matches \"(README|CLAUDE|AGENTS|GEMINI|CONTRIBUTING|CHANGELOG|SECURITY|LICENSE|CODE_OF_CONDUCT|SUPPORT)\\\\.md$\")",
 				"hooks": [
 					{
 						"type": "command",
-						"command": "node -e \"const fs=require('fs');let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{const i=JSON.parse(d);const p=i.tool_input?.file_path||'';if(/\\.(md|txt)$/.test(p)&&!/(README|CLAUDE|AGENTS|CONTRIBUTING)\\.md$/.test(p)){console.error('[Hook] BLOCKED: Unnecessary documentation file creation');console.error('[Hook] File: '+p);console.error('[Hook] Use README.md for documentation instead');process.exit(1)}console.log(d)})\""
+						"command": "node -e \"const fs=require('fs');let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{const i=JSON.parse(d);const p=i.tool_input?.file_path||'';if(/\\.(md|txt)$/.test(p)&&!/(README|CLAUDE|AGENTS|GEMINI|CONTRIBUTING|CHANGELOG|SECURITY|LICENSE|CODE_OF_CONDUCT|SUPPORT)\\.md$/.test(p)){console.error('[Hook] BLOCKED: Unnecessary documentation file creation');console.error('[Hook] File: '+p);console.error('[Hook] Use README.md for documentation instead');process.exit(1)}console.log(d)})\""
 					}
 				],
-				"description": "Block creation of random .md files - keeps docs consolidated"
+				"description": "Block creation of random .md files - keeps docs consolidated. Whitelisted: README, CLAUDE, AGENTS, GEMINI, CONTRIBUTING, CHANGELOG, SECURITY, LICENSE, CODE_OF_CONDUCT, SUPPORT (standard OSS files)."
 			},
 			{
 				"matcher": "tool == \"edit_file\" || tool == \"write_file\"",
