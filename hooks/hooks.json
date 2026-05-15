@@ -23,24 +23,24 @@
 				"description": "Block dev servers outside tmux — quote/subshell/brace-aware via scripts/hooks/pre-bash-dev-server-block.js. Allows tmux new-session -d -s dev \"npm run dev\" launchers and ignores literal mentions inside quoted strings (git commit messages, echo args, grep patterns)."
 			},
 			{
-				"matcher": "tool == \"run_shell_command\" && tool_input.command matches \"(npm (install|test)|pnpm (install|test)|yarn (install|test)?|bun (install|test)|cargo build|make|docker|pytest|vitest|playwright)\"",
+				"matcher": "tool == \"run_shell_command\" && tool_input.command matches \"^\\\\s*(npm (install|test|i|ci)|pnpm (install|test|i)|yarn (install|test|add|remove|upgrade)|bun (install|test|i|add|remove)|cargo build|make|docker|pytest|vitest|playwright)\\\\b\"",
 				"hooks": [
 					{
 						"type": "command",
 						"command": "node -e \"if(!process.env.TMUX){console.error('[Hook] Consider running in tmux for session persistence');console.error('[Hook] tmux new -s dev  |  tmux attach -t dev')}\""
 					}
 				],
-				"description": "Reminder to use tmux for long-running commands"
+				"description": "Reminder to use tmux for long-running commands. Anchored at start (^\\s*) so literal mentions inside quoted strings don't trigger it; includes the short forms `pnpm i`, `npm ci`, `bun i`, and `yarn add/remove/upgrade` that the previous matcher silently skipped."
 			},
 			{
-				"matcher": "tool == \"run_shell_command\" && tool_input.command matches \"git push\"",
+				"matcher": "tool == \"run_shell_command\" && tool_input.command matches \"^\\\\s*git\\\\s+push\\\\b\"",
 				"hooks": [
 					{
 						"type": "command",
 						"command": "node -e \"console.error('[Hook] Review changes before push...');console.error('[Hook] Continuing with push (remove this hook to add interactive review)')\""
 					}
 				],
-				"description": "Reminder before git push to review changes"
+				"description": "Reminder before git push to review changes. Anchored at start (^\\s*) so quoted mentions like `git commit -m \"before git push\"` don't trigger the reminder."
 			},
 			{
 				"matcher": "tool == \"write_file\" && tool_input.file_path matches \"\\\\.(md|txt)$\" && !(tool_input.file_path matches \"(README|CLAUDE|AGENTS|GEMINI|CONTRIBUTING|CHANGELOG|SECURITY|LICENSE|CODE_OF_CONDUCT|SUPPORT)\\\\.md$\") && !(tool_input.file_path matches \"(^|/)(agents|skills|workflows|rules|commands|docs|examples|mcp-configs|templates|upstream)/\")",
@@ -99,7 +99,7 @@
 				"description": "Log PR URL and provide review command after PR creation"
 			},
 			{
-				"matcher": "tool == \"run_shell_command\" && tool_input.command matches \"(npm run build|pnpm build|yarn build)\"",
+				"matcher": "tool == \"run_shell_command\" && tool_input.command matches \"^\\\\s*(npm run build|pnpm (run )?build|yarn (run )?build|bun (run )?build)\\\\b\"",
 				"hooks": [
 					{
 						"type": "command",
