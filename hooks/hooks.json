@@ -43,14 +43,14 @@
 				"description": "Reminder before git push to review changes"
 			},
 			{
-				"matcher": "tool == \"write_file\" && tool_input.file_path matches \"\\\\.(md|txt)$\" && !(tool_input.file_path matches \"(README|CLAUDE|AGENTS|GEMINI|CONTRIBUTING|CHANGELOG|SECURITY|LICENSE|CODE_OF_CONDUCT|SUPPORT)\\\\.md$\")",
+				"matcher": "tool == \"write_file\" && tool_input.file_path matches \"\\\\.(md|txt)$\" && !(tool_input.file_path matches \"(README|CLAUDE|AGENTS|GEMINI|CONTRIBUTING|CHANGELOG|SECURITY|LICENSE|CODE_OF_CONDUCT|SUPPORT)\\\\.md$\") && !(tool_input.file_path matches \"(^|/)(agents|skills|workflows|rules|commands|docs|examples|mcp-configs|templates|upstream)/\")",
 				"hooks": [
 					{
 						"type": "command",
-						"command": "node -e \"const fs=require('fs');let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{const i=JSON.parse(d);const p=i.tool_input?.file_path||'';if(/\\.(md|txt)$/.test(p)&&!/(README|CLAUDE|AGENTS|GEMINI|CONTRIBUTING|CHANGELOG|SECURITY|LICENSE|CODE_OF_CONDUCT|SUPPORT)\\.md$/.test(p)){console.error('[Hook] BLOCKED: Unnecessary documentation file creation');console.error('[Hook] File: '+p);console.error('[Hook] Use README.md for documentation instead');process.exit(1)}console.log(d)})\""
+						"command": "node -e \"const fs=require('fs');let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{const i=JSON.parse(d);const p=i.tool_input?.file_path||'';const isDocExt=/\\.(md|txt)$/.test(p);const isStandardName=/(README|CLAUDE|AGENTS|GEMINI|CONTRIBUTING|CHANGELOG|SECURITY|LICENSE|CODE_OF_CONDUCT|SUPPORT)\\.md$/.test(p);const isConventionDir=/(^|\\/)(agents|skills|workflows|rules|commands|docs|examples|mcp-configs|templates|upstream)\\//.test(p);if(isDocExt&&!isStandardName&&!isConventionDir){console.error('[Hook] BLOCKED: Unnecessary documentation file creation');console.error('[Hook] File: '+p);console.error('[Hook] Use README.md for documentation instead');process.exit(1)}console.log(d)})\""
 					}
 				],
-				"description": "Block creation of random .md files - keeps docs consolidated. Whitelisted: README, CLAUDE, AGENTS, GEMINI, CONTRIBUTING, CHANGELOG, SECURITY, LICENSE, CODE_OF_CONDUCT, SUPPORT (standard OSS files)."
+				"description": "Block creation of random .md files - keeps docs consolidated. Whitelisted: standard OSS names (README/CLAUDE/AGENTS/GEMINI/CONTRIBUTING/CHANGELOG/SECURITY/LICENSE/CODE_OF_CONDUCT/SUPPORT) AND files under EGC convention directories (agents/, skills/, workflows/, rules/, commands/, docs/, examples/, mcp-configs/, templates/, upstream/)."
 			},
 			{
 				"matcher": "tool == \"edit_file\" || tool == \"write_file\"",
