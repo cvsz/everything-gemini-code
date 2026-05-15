@@ -1,6 +1,6 @@
 {
   "upstream": "affaan-m/everything-claude-code",
-  "lastSyncedSha": "393d397efa40a9e9b6c7296df8181860ebf5047e",
-  "lastSyncedAt": "2026-05-13",
-  "notes": "Round 3 sync. Triage and per-commit dispositions: upstream/sync-rounds/2026-05-13.md. The SHA is the last commit *evaluated* — not necessarily the last commit ported. Ports landed: #75 (code-reviewer guardrails + prompt defense baselines). Net-new ECC features (PRD command, network architect agents, motion skills, Quarkus, Django Celery, cost tracking, frontend design, homelab configs) deferred to a future net-new round."
+  "lastSyncedSha": "f7315016c047abedc640e5434b9d74ff6a026994",
+  "lastSyncedAt": "2026-05-15",
+  "notes": "Round 4 sync. Triage and per-commit dispositions: upstream/sync-rounds/2026-05-15.md. The SHA is the last commit *evaluated* — not necessarily the last commit ported. In-flight port: feat/port-dev-server-block-from-ecc picks up the shell-substitution lib and dev-server-block hook from ECC main, where they landed via #1905 integrating EGC-authored #1889. Adjacent EGC-only fixes: fix/inline-matcher-quote-literal-false-positives, fix/md-block-hook-whitelist. Net-new ECC features (Ruby/Rails rules, supply-chain IOC scanner, command registry, GitHub Copilot adapter) deferred to a future net-new round alongside the rounds 1–3 carry-forwards."
 }
