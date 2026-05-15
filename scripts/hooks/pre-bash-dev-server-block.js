@@ -35,7 +35,11 @@ const PREFIX_OPTION_VALUE_WORDS = {
     '--role',
     '--type',
     '--close-from'
-  ])
+  ]),
+  // exec [-cl] [-a name] [command [arguments]] — only -a takes a value
+  // (the name to use as argv[0]). Without this, `exec -a foo npm run dev`
+  // treats `foo` as the leading command word and bypasses the dev check.
+  exec: new Set(['-a'])
 };
 
 function readToken(input, startIndex) {
@@ -217,8 +221,15 @@ process.stdin.on('end', () => {
         process.exit(2);
       }
     }
-  } catch {
-    // ignore parse errors and pass through
+  } catch (err) {
+    // Fail open on internal errors so a Gemini CLI run is never broken by
+    // this hook, but leave a stderr breadcrumb. Without it, a throw from
+    // `collectCheckSegments` / `isBlockedDevSegment` / the shell-substitution
+    // helpers on a pathological input would silently let a blocked dev
+    // command run. Logging is unconditional so operators can see the
+    // failure mode in Gemini CLI's hook output; `[Hook]` prefix matches
+    // the block message format above for grep-ability.
+    console.error(`[Hook] pre-bash-dev-server-block: failing open after ${err && err.name || 'error'}: ${err && err.message || String(err)}`);
   }
 
   process.stdout.write(raw);
