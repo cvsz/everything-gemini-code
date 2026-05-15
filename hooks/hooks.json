@@ -13,14 +13,14 @@
 				"description": "Block git --no-verify and core.hooksPath= overrides on commit/push/merge/cherry-pick/rebase/am — protects pre-commit, commit-msg, and pre-push hooks from being skipped"
 			},
 			{
-				"matcher": "tool == \"run_shell_command\" && tool_input.command matches \"(npm run dev|pnpm( run)? dev|yarn dev|bun run dev)\"",
+				"matcher": "tool == \"run_shell_command\"",
 				"hooks": [
 					{
 						"type": "command",
-						"command": "node -e \"console.error('[Hook] BLOCKED: Dev server must run in tmux for log access');console.error('[Hook] Use: tmux new-session -d -s dev \\\"npm run dev\\\"');console.error('[Hook] Then: tmux attach -t dev');process.exit(1)\""
+						"command": "node \"$HOME/.gemini/extensions/everything-gemini-code/scripts/hooks/pre-bash-dev-server-block.js\""
 					}
 				],
-				"description": "Block dev servers outside tmux - ensures you can access logs"
+				"description": "Block dev servers outside tmux — quote/subshell/brace-aware via scripts/hooks/pre-bash-dev-server-block.js. Allows tmux new-session -d -s dev \"npm run dev\" launchers and ignores literal mentions inside quoted strings (git commit messages, echo args, grep patterns)."
 			},
 			{
 				"matcher": "tool == \"run_shell_command\" && tool_input.command matches \"(npm (install|test)|pnpm (install|test)|yarn (install|test)?|bun (install|test)|cargo build|make|docker|pytest|vitest|playwright)\"",
