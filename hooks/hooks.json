@@ -23,14 +23,14 @@
 				"description": "Block dev servers outside tmux - ensures you can access logs"
 			},
 			{
-				"matcher": "tool == \"run_shell_command\" && tool_input.command matches \"(npm (install|test)|pnpm (install|test)|yarn (install|test)?|bun (install|test)|cargo build|make|docker|pytest|vitest|playwright)\"",
+				"matcher": "tool == \"run_shell_command\" && tool_input.command matches \"^\\\\s*(npm (install|test|i|ci)|pnpm (install|test|i)|yarn (install|test|add|remove|upgrade)?|bun (install|test|i|add|remove)|cargo build|make|docker|pytest|vitest|playwright)\\\\b\"",
 				"hooks": [
 					{
 						"type": "command",
 						"command": "node -e \"if(!process.env.TMUX){console.error('[Hook] Consider running in tmux for session persistence');console.error('[Hook] tmux new -s dev  |  tmux attach -t dev')}\""
 					}
 				],
-				"description": "Reminder to use tmux for long-running commands"
+				"description": "Reminder to use tmux for long-running commands. Anchored at start (^\\s*) so literal mentions inside quoted strings don't trigger it; includes the short forms `pnpm i`, `npm ci`, `bun i`, and `yarn add/remove/upgrade` that the previous matcher silently skipped."
 			},
 			{
 				"matcher": "tool == \"run_shell_command\" && tool_input.command matches \"git push\"",
