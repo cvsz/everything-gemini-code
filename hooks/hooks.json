@@ -99,7 +99,7 @@
 				"description": "Log PR URL and provide review command after PR creation"
 			},
 			{
-				"matcher": "tool == \"run_shell_command\" && tool_input.command matches \"(npm run build|pnpm build|yarn build)\"",
+				"matcher": "tool == \"run_shell_command\" && tool_input.command matches \"^\\\\s*(npm run build|pnpm (run )?build|yarn (run )?build|bun (run )?build)\\\\b\"",
 				"hooks": [
 					{
 						"type": "command",
