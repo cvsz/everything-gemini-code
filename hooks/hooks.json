@@ -33,14 +33,14 @@
 				"description": "Reminder to use tmux for long-running commands. Anchored at start (^\\s*) so literal mentions inside quoted strings don't trigger it; includes the short forms `pnpm i`, `npm ci`, `bun i`, and `yarn add/remove/upgrade` that the previous matcher silently skipped."
 			},
 			{
-				"matcher": "tool == \"run_shell_command\" && tool_input.command matches \"git push\"",
+				"matcher": "tool == \"run_shell_command\" && tool_input.command matches \"^\\\\s*git\\\\s+push\\\\b\"",
 				"hooks": [
 					{
 						"type": "command",
 						"command": "node -e \"console.error('[Hook] Review changes before push...');console.error('[Hook] Continuing with push (remove this hook to add interactive review)')\""
 					}
 				],
-				"description": "Reminder before git push to review changes"
+				"description": "Reminder before git push to review changes. Anchored at start (^\\s*) so quoted mentions like `git commit -m \"before git push\"` don't trigger the reminder."
 			},
 			{
 				"matcher": "tool == \"write_file\" && tool_input.file_path matches \"\\\\.(md|txt)$\" && !(tool_input.file_path matches \"README\\\\.md|CLAUDE\\\\.md|AGENTS\\\\.md|CONTRIBUTING\\\\.md\")",
