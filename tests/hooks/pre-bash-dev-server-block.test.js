@@ -88,6 +88,50 @@ if (!isWindows) {
   })) passed++; else failed++;
 }
 
+// --- Wrapper-syntax bypass coverage (round 1 review fixes) ---
+
+if (!isWindows) {
+  if (test('blocks exec -a <name> npm run dev (-a takes a value, must be skipped)', () => {
+    const r = runCommand('exec -a foo npm run dev');
+    assert.strictEqual(r.code, 2, `expected exit 2, got ${r.code}: ${r.stderr}`);
+  })) passed++; else failed++;
+
+  if (test('blocks exec -a <name> pnpm dev — same fix shape for pnpm', () => {
+    assert.strictEqual(runCommand('exec -a evil pnpm dev').code, 2);
+  })) passed++; else failed++;
+
+  if (test('blocks env FOO=bar exec -a name npm run dev (stacked wrappers)', () => {
+    assert.strictEqual(runCommand('env FOO=bar exec -a foo npm run dev').code, 2);
+  })) passed++; else failed++;
+
+  if (test('exec -l npm run dev still blocks (-l takes no value)', () => {
+    assert.strictEqual(runCommand('exec -l npm run dev').code, 2);
+  })) passed++; else failed++;
+
+  if (test('exec -c npm run dev still blocks (-c takes no value)', () => {
+    assert.strictEqual(runCommand('exec -c npm run dev').code, 2);
+  })) passed++; else failed++;
+}
+
+// --- Fail-open logging on internal error (round 1 review fix) ---
+
+if (test('logs stderr breadcrumb on JSON parse failure (no longer silent)', () => {
+  // Invalid JSON triggers the catch path. Hook must:
+  //   1. exit 0 (fail open, do not break the Gemini CLI run)
+  //   2. write a [Hook] prefixed line to stderr so the failure is visible
+  const result = spawnSync('node', [HOOK], {
+    input: 'this-is-not-json',
+    encoding: 'utf8',
+    timeout: 15000,
+    stdio: ['pipe', 'pipe', 'pipe']
+  });
+  assert.strictEqual(result.status || 0, 0, 'fail-open exit code should still be 0');
+  assert.ok(
+    /\[Hook\] pre-bash-dev-server-block: failing open/.test(result.stderr || ''),
+    `expected stderr breadcrumb on internal error, got: ${result.stderr}`
+  );
+})) passed++; else failed++;
+
 // --- Subshell + brace-group bypass coverage ---
 
 if (!isWindows) {

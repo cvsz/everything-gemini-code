@@ -21,6 +21,7 @@ const testFiles = [
   'lib/upstream-drift.test.js',
   'hooks/hooks.test.js',
   'hooks/block-no-verify.test.js',
+  'hooks/pre-bash-dev-server-block.test.js',
   'commands/plan-command.test.js',
   'ci/validate-workflow-security.test.js',
   'ci/validate-upstream-sync.test.js',
