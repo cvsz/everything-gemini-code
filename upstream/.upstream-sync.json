@@ -1,6 +1,6 @@
 {
   "upstream": "affaan-m/everything-claude-code",
-  "lastSyncedSha": "f7315016c047abedc640e5434b9d74ff6a026994",
-  "lastSyncedAt": "2026-05-15",
-  "notes": "Round 4 sync. Triage and per-commit dispositions: upstream/sync-rounds/2026-05-15.md. The SHA is the last commit *evaluated* — not necessarily the last commit ported. In-flight port: feat/port-dev-server-block-from-ecc picks up the shell-substitution lib and dev-server-block hook from ECC main, where they landed via #1905 integrating EGC-authored #1889. Adjacent EGC-only fixes: fix/inline-matcher-quote-literal-false-positives, fix/md-block-hook-whitelist. Net-new ECC features (Ruby/Rails rules, supply-chain IOC scanner, command registry, GitHub Copilot adapter) deferred to a future net-new round alongside the rounds 1–3 carry-forwards."
+  "lastSyncedSha": "3b7e0ba30a027ffd3319c2f145c63076c296d80a",
+  "lastSyncedAt": "2026-05-18",
+  "notes": "Round 5 sync. Triage and per-commit dispositions: upstream/sync-rounds/2026-05-18.md. The SHA is the last commit *evaluated* — not necessarily the last commit ported. No new EGC-authored ECC PR opens this round because the two PRs that landed during this window (ECC #1970 workflow-security validator + #1971 ecc-metrics-bridge cost fixes) were EGC-authored against the previous baseline and are now part of ECC main. Deferred net-new ECC features added to the queue: uncloud skill, recsys-pipeline-architect skill, Thai (th) locale, full Japanese (ja-JP) translation, installer --locale flag, TypeScript 6 + @types/node 25 bumps, Zed install target."
 }
