@@ -1,6 +1,6 @@
 {
   "upstream": "affaan-m/everything-claude-code",
-  "lastSyncedSha": "3b7e0ba30a027ffd3319c2f145c63076c296d80a",
-  "lastSyncedAt": "2026-05-18",
-  "notes": "Round 5 sync. Triage and per-commit dispositions: upstream/sync-rounds/2026-05-18.md. The SHA is the last commit *evaluated* — not necessarily the last commit ported. No new EGC-authored ECC PR opens this round because the two PRs that landed during this window (ECC #1970 workflow-security validator + #1971 ecc-metrics-bridge cost fixes) were EGC-authored against the previous baseline and are now part of ECC main. Deferred net-new ECC features added to the queue: uncloud skill, recsys-pipeline-architect skill, Thai (th) locale, full Japanese (ja-JP) translation, installer --locale flag, TypeScript 6 + @types/node 25 bumps, Zed install target."
+  "lastSyncedSha": "1e8c7e7994223e0ff337d1626cd08e04a1ae67ed",
+  "lastSyncedAt": "2026-05-26",
+  "notes": "Round 6 sync. Triage and per-commit dispositions: upstream/sync-rounds/2026-05-26.md. The SHA is the last commit *evaluated* — not necessarily the last commit ported. No new EGC-authored ECC PR opens this round; two EGC-authored PRs that landed during this window (ECC #1982 Unicode Tag denylist in check-unicode-safety + ECC #1983 writeBridgeAtomic/writeWarnState atomic-write race) target ECC-only file surfaces and are not back-portable to EGC. One trivial clean-delete candidate filed for follow-up: 812d4d0 (delete skills/strategic-compact/suggest-compact.sh, unreferenced in EGC). Deferred net-new ECC features added to the queue: Blender motion-state inspection skill, harness-audit integration scoring extension (ECC #1990), continuous-learning-v2 project-registry maintenance."
 }

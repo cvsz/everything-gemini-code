@@ -4,7 +4,7 @@
 
 ![Upstream Sync](https://img.shields.io/badge/Upstream_Sync-Best_effort-blue)
 ![Upstream](https://img.shields.io/badge/upstream-affaan--m%2Feverything--claude--code-informational)
-![Baseline](https://img.shields.io/badge/baseline-3b7e0ba3-informational)
+![Baseline](https://img.shields.io/badge/baseline-1e8c7e7-informational)
 
 EGC (Everything Gemini Code) is an **ecosystem port** of [ECC (Everything Claude Code)](https://github.com/affaan-m/everything-claude-code) by [@affaan-m](https://github.com/affaan-m). It is not an official ECC release and does not claim API or behavioral compatibility with ECC. Harness-specific behavior is verified inside Gemini CLI itself, not by reference to ECC's Claude Code behavior.
 
@@ -15,9 +15,9 @@ This document records how EGC tracks the upstream ECC repository and what was ch
 ## Upstream baseline
 
 - **Upstream repository**: [`affaan-m/everything-claude-code`](https://github.com/affaan-m/everything-claude-code)
-- **Last-synced upstream commit**: [`3b7e0ba30a027ffd3319c2f145c63076c296d80a`](https://github.com/affaan-m/everything-claude-code/commit/3b7e0ba30a027ffd3319c2f145c63076c296d80a)
-- **Last-synced date**: 2026-05-18
-- **Round notes**: see [`sync-rounds/2026-05-18.md`](sync-rounds/2026-05-18.md) for the latest round; [`sync-rounds/2026-05-15.md`](sync-rounds/2026-05-15.md), [`sync-rounds/2026-05-13.md`](sync-rounds/2026-05-13.md), and [`sync-rounds/2026-05-12.md`](sync-rounds/2026-05-12.md) for prior rounds. The SHA above is the last commit *evaluated*; not every commit in the focused range was ported.
+- **Last-synced upstream commit**: [`1e8c7e7994223e0ff337d1626cd08e04a1ae67ed`](https://github.com/affaan-m/everything-claude-code/commit/1e8c7e7994223e0ff337d1626cd08e04a1ae67ed)
+- **Last-synced date**: 2026-05-26
+- **Round notes**: see [`sync-rounds/2026-05-26.md`](sync-rounds/2026-05-26.md) for the latest round; [`sync-rounds/2026-05-18.md`](sync-rounds/2026-05-18.md), [`sync-rounds/2026-05-15.md`](sync-rounds/2026-05-15.md), [`sync-rounds/2026-05-13.md`](sync-rounds/2026-05-13.md), and [`sync-rounds/2026-05-12.md`](sync-rounds/2026-05-12.md) for prior rounds. The SHA above is the last commit *evaluated*; not every commit in the focused range was ported.
 - **Initial EGC commit**: [`ff331996a061c2bbd17ffaa23d4eed2dcdd6ad35`](https://github.com/Jamkris/everything-gemini-code/commit/ff331996a061c2bbd17ffaa23d4eed2dcdd6ad35) (2026-02-09)
 
 A machine-readable copy of this state lives at [`.upstream-sync.json`](./.upstream-sync.json). A CI validator (`scripts/ci/validate-upstream-sync.js`) asserts that the two files agree on the SHA, so a mismatch blocks the PR automatically.
