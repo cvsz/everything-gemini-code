@@ -4,7 +4,7 @@
 
 ![Upstream Sync](https://img.shields.io/badge/Upstream_Sync-Best_effort-blue)
 ![Upstream](https://img.shields.io/badge/upstream-affaan--m%2Feverything--claude--code-informational)
-![Baseline](https://img.shields.io/badge/baseline-393d397e-informational)
+![Baseline](https://img.shields.io/badge/baseline-1e8c7e7-informational)
 
 EGC (Everything Gemini Code) 는 [@affaan-m](https://github.com/affaan-m) 의 [ECC (Everything Claude Code)](https://github.com/affaan-m/everything-claude-code) 를 기반으로 한 **생태계 포트(ecosystem port)** 입니다. ECC의 공식 릴리스가 아니며, ECC와의 API/동작 호환성을 주장하지 않습니다. 하네스 고유 동작은 ECC의 Claude Code 거동을 기준 삼지 않고 Gemini CLI 내부에서 직접 검증합니다.
 
@@ -15,9 +15,9 @@ EGC (Everything Gemini Code) 는 [@affaan-m](https://github.com/affaan-m) 의 [E
 ## 업스트림 베이스라인
 
 - **업스트림 레포지토리**: [`affaan-m/everything-claude-code`](https://github.com/affaan-m/everything-claude-code)
-- **마지막 동기화 커밋**: [`393d397efa40a9e9b6c7296df8181860ebf5047e`](https://github.com/affaan-m/everything-claude-code/commit/393d397efa40a9e9b6c7296df8181860ebf5047e)
-- **마지막 동기화 일자**: 2026-05-13
-- **라운드 노트**: 최신 라운드는 [`sync-rounds/2026-05-13.md`](../sync-rounds/2026-05-13.md), 첫 triage는 [`sync-rounds/2026-05-12.md`](../sync-rounds/2026-05-12.md) 참고. 위 SHA는 *평가한* 마지막 커밋이며, 포커스 범위의 모든 커밋이 포팅되지는 않았습니다.
+- **마지막 동기화 커밋**: [`1e8c7e7994223e0ff337d1626cd08e04a1ae67ed`](https://github.com/affaan-m/everything-claude-code/commit/1e8c7e7994223e0ff337d1626cd08e04a1ae67ed)
+- **마지막 동기화 일자**: 2026-05-26
+- **라운드 노트**: 최신 라운드는 [`sync-rounds/2026-05-26.md`](../sync-rounds/2026-05-26.md), 이전 라운드는 [`sync-rounds/2026-05-18.md`](../sync-rounds/2026-05-18.md), [`sync-rounds/2026-05-15.md`](../sync-rounds/2026-05-15.md), [`sync-rounds/2026-05-13.md`](../sync-rounds/2026-05-13.md), 첫 triage는 [`sync-rounds/2026-05-12.md`](../sync-rounds/2026-05-12.md) 참고. 위 SHA는 *평가한* 마지막 커밋이며, 포커스 범위의 모든 커밋이 포팅되지는 않았습니다.
 - **EGC 최초 커밋**: [`ff331996a061c2bbd17ffaa23d4eed2dcdd6ad35`](https://github.com/Jamkris/everything-gemini-code/commit/ff331996a061c2bbd17ffaa23d4eed2dcdd6ad35) (2026-02-09)
 
 이 상태의 기계 판독용 사본은 [`.upstream-sync.json`](../.upstream-sync.json) 에 있습니다. CI validator (`scripts/ci/validate-upstream-sync.js`) 가 두 파일의 SHA 일치를 강제하며, 불일치가 발생한 PR은 자동으로 차단됩니다.
